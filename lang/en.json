@@ -47,7 +47,19 @@
       "PreviewNone": "No profile: this is a plain Foundry wall.",
       "ManagedNotice": "Movement, sight, light, sound and door settings are controlled by the Threshold profile “{profile}”. Change them on the Threshold tab.",
       "RemoveNotice": "Saving will remove the Threshold profile and restore this wall's original settings.",
-      "MetadataOnly": "Applying profiles to native walls is turned off in module settings: the profile is stored as data only."
+      "MetadataOnly": "Applying profiles to native walls is turned off in module settings: the profile is stored as data only.",
+      "OverridesLegend": "Behaviour in other states",
+      "OverridesHint": "Change what gets through when the barrier is open, ajar, locked or damaged. “Default” follows the built-in rule shown in brackets.",
+      "OverrideHint": {
+        "open": "Without overrides an open barrier lets everything through. Override to keep something blocked, e.g. a window with curtains drawn back still blocks movement.",
+        "ajar": "Without overrides each channel becomes the less restrictive of the closed value and a narrow gap.",
+        "locked": "Without overrides a locked door behaves like a closed one.",
+        "damaged": "Without overrides a damaged barrier behaves like a closed one. Override to describe a broken window or a breached barricade."
+      },
+      "Default": "Default",
+      "DefaultValue": "Default ({value})",
+      "ResetState": "Clear overrides for this state",
+      "DoorOnlyState": "Only available when Door control is set to Door or Secret door."
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"

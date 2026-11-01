@@ -47,7 +47,19 @@
       "PreviewNone": "Brak profilu: to zwykła ściana Foundry.",
       "ManagedNotice": "Ruch, wzrok, światło, dźwięk i drzwi kontroluje profil Threshold „{profile}”. Zmieniaj je w zakładce Threshold.",
       "RemoveNotice": "Zapisanie usunie profil Threshold i przywróci pierwotne ustawienia tej ściany.",
-      "MetadataOnly": "Stosowanie profili do natywnych ścian jest wyłączone w ustawieniach modułu: profil jest zapisywany wyłącznie jako dane."
+      "MetadataOnly": "Stosowanie profili do natywnych ścian jest wyłączone w ustawieniach modułu: profil jest zapisywany wyłącznie jako dane.",
+      "OverridesLegend": "Zachowanie w innych stanach",
+      "OverridesHint": "Określ, co przechodzi, gdy przeszkoda jest otwarta, uchylona, zamknięta na klucz lub uszkodzona. „Domyślnie” oznacza wbudowaną regułę podaną w nawiasie.",
+      "OverrideHint": {
+        "open": "Bez nadpisań otwarta przeszkoda przepuszcza wszystko. Nadpisz, aby coś nadal blokowała, np. okno z odsuniętymi zasłonami dalej blokuje ruch.",
+        "ajar": "Bez nadpisań każdy kanał przyjmuje mniej restrykcyjną z dwóch wartości: stanu zamkniętego i wąskiej szczeliny.",
+        "locked": "Bez nadpisań drzwi zamknięte na klucz działają jak zamknięte.",
+        "damaged": "Bez nadpisań uszkodzona przeszkoda działa jak zamknięta. Nadpisz, aby opisać np. wybite okno albo rozbitą barykadę."
+      },
+      "Default": "Domyślnie",
+      "DefaultValue": "Domyślnie ({value})",
+      "ResetState": "Wyczyść nadpisania tego stanu",
+      "DoorOnlyState": "Dostępne tylko, gdy sterowanie drzwiami to Drzwi lub Ukryte drzwi."
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"

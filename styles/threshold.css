@@ -62,3 +62,21 @@
 .thr-wall-tab .thr-managed { opacity: 0.5; }
 .thr-managed-notice { margin: 0; padding: 0.4rem 0.6rem; border-radius: 4px; }
 .thr-managed-notice[hidden] { display: none; }
+
+/* Per-state overrides */
+.thr-state-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.thr-state-tabs a {
+  flex: 1;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--color-border, rgba(127, 127, 127, 0.4));
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.thr-state-tabs a.active { border-color: var(--color-warm-1, #ee9b3a); font-weight: bold; }
+.thr-state-tabs a.disabled { opacity: 0.35; cursor: not-allowed; }
+.thr-state-tabs a.thr-has-override::after { content: " •"; color: var(--color-warm-1, #ee9b3a); }
+.thr-override-group { display: none; flex-direction: column; gap: 0.4rem; }
+.thr-override-group.active { display: flex; }
+.thr-override-group .thr-reset { align-self: flex-end; width: auto; }

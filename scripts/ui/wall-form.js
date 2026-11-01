@@ -71,7 +71,19 @@ export function barrierFromForm(ui, existing, profiles) {
   }
   if (ui.material && "durability" in ui.material) material.durability = toNumber(ui.material.durability);
 
-  return makeBarrier(base, { profile: profileId, state, channels, thresholds, interaction, material });
+  const layer = { profile: profileId, state, channels, thresholds, interaction, material };
+  // For each state the tab sends, its selects replace the override entirely (an empty
+  // select means "no override"). States the tab does not show keep the base's override.
+  if (ui.stateOverrides && typeof ui.stateOverrides === "object") {
+    layer.stateOverrides = Object.fromEntries(STATES.map(s => {
+      if (!(s in ui.stateOverrides)) return [s, base.stateOverrides?.[s] ?? null];
+      return [s, Object.fromEntries(CHANNELS.map(c => {
+        const value = ui.stateOverrides[s]?.[c];
+        return [c, CHANNEL_VALUES[c].includes(value) ? value : null];
+      }))];
+    }));
+  }
+  return makeBarrier(base, layer);
 }
 
 /**

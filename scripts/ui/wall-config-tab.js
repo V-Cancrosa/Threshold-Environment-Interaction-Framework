@@ -7,6 +7,10 @@ import { UI_PREFIX, barrierFromForm } from "./wall-form.js";
 const NATIVE_SELECTOR = ["move", "sight", "light", "sound", "door", "ds"].map(n => `[name="${n}"]`)
   .concat('[name^="threshold."]').join(", ");
 
+/** States whose behaviour can be overridden; "closed" is the base itself. */
+const OVERRIDE_STATES = Object.freeze(["open", "ajar", "locked", "damaged"]);
+const DOOR_ONLY_STATES = Object.freeze(["ajar", "locked"]);
+
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const t = key => game.i18n.localize(key);
 
@@ -89,12 +93,29 @@ export class WallConfigTab {
     });
 
     const existing = document.getFlag(MODULE_ID, FLAG_KEY) ?? null;
+    panel.addEventListener("click", event => {
+      const stateLink = event.target.closest("[data-thr-state]");
+      if (stateLink && !stateLink.classList.contains("disabled")) {
+        event.preventDefault();
+        app._thresholdOverrideState = stateLink.dataset.thrState;
+        this.showOverrideState(panel, stateLink.dataset.thrState);
+        app.setPosition?.({ height: "auto" });
+        return;
+      }
+      const reset = event.target.closest("[data-thr-reset]");
+      if (reset) {
+        event.preventDefault();
+        for (const c of CHANNELS) this.setField(panel, `stateOverrides.${reset.dataset.thrReset}.${c}`, "");
+        this.refresh(panel, form, notice, existing);
+      }
+    });
     panel.addEventListener("change", event => {
       const name = event.target.name ?? "";
       if (name === `${UI_PREFIX}.profile`) this.fillFromProfile(panel, event.target.value, existing);
       if (name === `${UI_PREFIX}.material.id`) this.fillMaterial(panel, event.target.value);
       this.refresh(panel, form, notice, existing);
     });
+    this.showOverrideState(panel, app._thresholdOverrideState ?? "open");
     this.refresh(panel, form, notice, existing);
     activate(app._thresholdTab ?? "wall");
   }
@@ -142,6 +163,7 @@ export class WallConfigTab {
           ${group(t("THRESHOLD.Config.Thresholds"), thresholdInputs, t("THRESHOLD.Config.ThresholdsHint"))}
           ${group(t("THRESHOLD.Config.Attenuation"), `<input type="checkbox" name="${P}.thresholds.attenuation"${b.thresholds?.attenuation ? " checked" : ""}>`, t("THRESHOLD.Config.AttenuationHint"))}
         </fieldset>
+        ${this.renderOverrides(b)}
         <fieldset>
           <legend>${esc(t("THRESHOLD.Config.MaterialLegend"))}</legend>
           ${group(t("THRESHOLD.Config.Material"), materialSelect)}
@@ -149,6 +171,66 @@ export class WallConfigTab {
           <div class="form-group thr-checks">${check("playersCanOperate")}${check("lockable")}${check("destructible")}</div>
         </fieldset>
       </div>`;
+  }
+
+  /**
+   * One group of channel selects per overridable state; only the active group is shown,
+   * but all of them are submitted. An empty value means "no override".
+   */
+  renderOverrides(b) {
+    const P = `${UI_PREFIX}.stateOverrides`;
+    const nav = OVERRIDE_STATES.map(s => `<a data-thr-state="${s}">${esc(t(`THRESHOLD.State.${s}`))}</a>`).join("");
+    const groups = OVERRIDE_STATES.map(state => {
+      const override = b.stateOverrides?.[state] ?? {};
+      const rows = CHANNELS.map(c => group(
+        t(`THRESHOLD.Channel.${c}`),
+        `<select name="${P}.${state}.${c}">${option("", t("THRESHOLD.Config.Default"), override[c] ?? "")}`
+          + CHANNEL_VALUES[c].map(v => option(v, t(`THRESHOLD.Value.${v}`), override[c] ?? "")).join("") + "</select>"
+      )).join("");
+      return `<div class="thr-override-group" data-thr-state-group="${state}">
+          <p class="hint">${esc(t(`THRESHOLD.Config.OverrideHint.${state}`))}</p>
+          ${rows}
+          <button type="button" class="thr-reset" data-thr-reset="${state}"><i class="fa-solid fa-rotate-left"></i> ${esc(t("THRESHOLD.Config.ResetState"))}</button>
+        </div>`;
+    }).join("");
+    return `<fieldset class="thr-overrides">
+        <legend>${esc(t("THRESHOLD.Config.OverridesLegend"))}</legend>
+        <p class="hint">${esc(t("THRESHOLD.Config.OverridesHint"))}</p>
+        <nav class="thr-state-tabs">${nav}</nav>
+        ${groups}
+      </fieldset>`;
+  }
+
+  showOverrideState(panel, state) {
+    for (const el of panel.querySelectorAll("[data-thr-state-group]")) el.classList.toggle("active", el.dataset.thrStateGroup === state);
+    for (const a of panel.querySelectorAll("[data-thr-state]")) a.classList.toggle("active", a.dataset.thrState === state);
+  }
+
+  /**
+   * Label each "Default" option with what the state gives without an override, from the
+   * base channels currently in the form, and mark states that have overrides.
+   */
+  refreshOverrides(panel, ui, isDoor) {
+    const channels = { ...makeBarrier().channels };
+    for (const c of CHANNELS) if (CHANNEL_VALUES[c].includes(ui.channels?.[c])) channels[c] = ui.channels[c];
+    for (const state of OVERRIDE_STATES) {
+      const fallback = PropertyEngine.effectiveChannels({ enabled: true, channels, state, stateOverrides: {} });
+      let overridden = false;
+      for (const c of CHANNELS) {
+        const select = panel.querySelector(`[name="${UI_PREFIX}.stateOverrides.${state}.${c}"]`);
+        if (!select) continue;
+        select.options[0].textContent = game.i18n.format("THRESHOLD.Config.DefaultValue", { value: t(`THRESHOLD.Value.${fallback[c]}`) });
+        if (select.value) overridden = true;
+      }
+      const link = panel.querySelector(`[data-thr-state="${state}"]`);
+      link.classList.toggle("thr-has-override", overridden);
+      const unavailable = !isDoor && DOOR_ONLY_STATES.includes(state);
+      link.classList.toggle("disabled", unavailable);
+      link.title = unavailable ? t("THRESHOLD.Config.DoorOnlyState") : "";
+    }
+    // Do not leave a door-only state open when the barrier is no longer a door.
+    const active = panel.querySelector("[data-thr-state].active");
+    if (active?.classList.contains("disabled")) this.showOverrideState(panel, "open");
   }
 
   /** Read the tab back into the same shape the sheet will submit. */
@@ -179,6 +261,9 @@ export class WallConfigTab {
     this.setField(panel, "material.id", b.material.id);
     this.setField(panel, "material.durability", b.material.durability);
     for (const k of ["playersCanOperate", "lockable", "destructible"]) this.setField(panel, `interaction.${k}`, b.interaction[k]);
+    for (const state of OVERRIDE_STATES) {
+      for (const c of CHANNELS) this.setField(panel, `stateOverrides.${state}.${c}`, b.stateOverrides?.[state]?.[c] ?? "");
+    }
   }
 
   fillMaterial(panel, materialId) {
@@ -213,6 +298,7 @@ export class WallConfigTab {
       : active ? game.i18n.format("THRESHOLD.Config.ManagedNotice", { profile: this.profileLabel(ui.profile) })
       : t("THRESHOLD.Config.RemoveNotice");
 
+    this.refreshOverrides(panel, ui, isDoor);
     this.renderPreview(panel.querySelector(".thr-preview"), ui, existing);
   }
 

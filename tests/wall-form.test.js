@@ -123,3 +123,52 @@ test("with native sync off the sheet's native values are kept", async () => {
 test("unknown profiles are rejected so the hook can cancel the save", () => {
   assert.throws(() => applyFormToChanges(new MockWall(), sheetUpdate({ profile: "portcullis" }), deps), /Unknown barrier profile/);
 });
+
+const emptyOverrides = () => Object.fromEntries(["open", "ajar", "locked", "damaged"]
+  .map(s => [s, Object.fromEntries(["movement", "vision", "light", "sound", "cover", "ballistic"].map(c => [c, ""]))]));
+
+test("state overrides edited on the tab are stored and applied", async () => {
+  const wall = new MockWall();
+  const stateOverrides = emptyOverrides();
+  stateOverrides.damaged.movement = "passable";
+  stateOverrides.damaged.vision = "transparent";
+  await submit(wall, sheetUpdate({ profile: "door", state: "damaged", stateOverrides }));
+  const barrier = wall.getFlag("threshold", "barrier");
+  assert.equal(barrier.stateOverrides.damaged.movement, "passable");
+  assert.equal(barrier.stateOverrides.damaged.light, null);
+  assert.equal(barrier.stateOverrides.open, null);
+  assert.equal(wall._source.move, 0);
+  assert.equal(wall._source.sight, 0);
+  assert.equal(wall._source.light, 20, "channels without an override keep the base value");
+});
+
+test("emptying the selects removes a profile's own override", async () => {
+  const wall = new MockWall();
+  await submit(wall, sheetUpdate({ profile: "curtained-window", state: "open", stateOverrides: emptyOverrides() }));
+  const barrier = wall.getFlag("threshold", "barrier");
+  assert.equal(barrier.stateOverrides.open, null);
+  assert.equal(wall._source.move, 0, "open without override is fully passable");
+});
+
+test("the profile's overrides are kept when the tab leaves them unchanged", async () => {
+  const wall = new MockWall();
+  const stateOverrides = emptyOverrides();
+  Object.assign(stateOverrides.open, { movement: "blocked", vision: "proximity", light: "transmitted", ballistic: "blocked" });
+  await submit(wall, sheetUpdate({ profile: "curtained-window", state: "open", stateOverrides }));
+  assert.equal(wall._source.move, 20);
+  assert.equal(wall._source.sight, 30);
+});
+
+test("a closed-state override set through the API survives saving the tab", async () => {
+  const wall = new MockWall();
+  await manager.attach(wall, "door", { stateOverrides: { closed: { sound: "blocked" } } });
+  await submit(wall, sheetUpdate({ profile: "door", stateOverrides: emptyOverrides() }));
+  assert.equal(wall.getFlag("threshold", "barrier").stateOverrides.closed.sound, "blocked");
+});
+
+test("invalid override values are ignored rather than stored", () => {
+  const stateOverrides = emptyOverrides();
+  stateOverrides.open.vision = "x-ray";
+  const barrier = barrierFromForm({ profile: "door", stateOverrides }, null, deps.profiles);
+  assert.equal(barrier.stateOverrides.open, null);
+});
