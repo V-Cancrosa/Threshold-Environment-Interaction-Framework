@@ -50,7 +50,16 @@ jobs:
 
       - name: Build package
         if: steps.meta.outputs.exists == 'false'
-        run: zip -r threshold.zip module.json README.md scripts styles lang profiles
+        run: |
+          zip -r threshold.zip module.json README.md scripts styles lang profiles assets
+          # Every module path referenced from profiles must be in the package.
+          missing=0
+          for path in $(grep -oh 'modules/threshold/[^"]*' profiles/*.json | sort -u); do
+            if ! unzip -l threshold.zip "${path#modules/threshold/}" >/dev/null; then
+              echo "::error::Missing from package: ${path#modules/threshold/}"; missing=1
+            fi
+          done
+          exit $missing
 
       # Not marked as prerelease on purpose: /releases/latest/ only resolves to
       # non-prerelease releases, and Foundry installs through that manifest URL.
