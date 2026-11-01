@@ -27,7 +27,7 @@
       "WallTab": "Wall",
       "Profile": "Barrier profile",
       "ProfileNone": "— None (plain Foundry wall) —",
-      "ProfileHint": "Choosing a profile fills in the settings below. Adjust any of them for this wall.",
+      "ProfileHint": "Choosing a profile fills in the settings below.",
       "StateLegend": "Door and state",
       "Door": "Door control",
       "State": "State",
@@ -43,7 +43,6 @@
       "playersCanOperate": "Players can operate",
       "lockable": "Lockable",
       "destructible": "Destructible",
-      "Preview": "In effect now ({state})",
       "PreviewNone": "No profile: this is a plain Foundry wall.",
       "ManagedNotice": "Movement, sight, light, sound and door settings are controlled by the Threshold profile “{profile}”. Change them on the Threshold tab.",
       "RemoveNotice": "Saving will remove the Threshold profile and restore this wall's original settings.",
@@ -59,7 +58,13 @@
       "Default": "Default",
       "DefaultValue": "Default ({value})",
       "ResetState": "Clear overrides for this state",
-      "DoorOnlyState": "Only available when Door control is set to Door or Secret door."
+      "DoorOnlyState": "Only available when Door control is set to Door or Secret door.",
+      "MatrixEdit": "Click to edit this state",
+      "LegendBlocked": "blocks",
+      "LegendPartial": "partly",
+      "LegendOpen": "lets through",
+      "LegendOverride": "override",
+      "OverrideCount": "{count} edited"
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"
@@ -114,6 +119,27 @@
       "viewing-slot": "Viewing slot / arrow slit",
       "force-field": "Force field",
       "barricade": "Barricade"
+    },
+    "ValueShort": {
+      "blocked": "Blocked",
+      "passable": "Open",
+      "limited": "Limited",
+      "proximity": "Near",
+      "distance": "Far",
+      "transparent": "Clear",
+      "transmitted": "Passes",
+      "attenuated": "Muffled",
+      "none": "None",
+      "partial": "Partial",
+      "full": "Full",
+      "conditional": "Cond."
+    },
+    "StateShort": {
+      "closed": "Closed",
+      "open": "Open",
+      "ajar": "Ajar",
+      "locked": "Locked",
+      "damaged": "Damaged"
     }
   }
 }

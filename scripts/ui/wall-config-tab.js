@@ -18,8 +18,41 @@ function option(value, label, selected) {
   return `<option value="${esc(value)}"${value === selected ? " selected" : ""}>${esc(label)}</option>`;
 }
 
-function group(label, control, hint = "") {
-  return `<div class="form-group"><label>${esc(label)}</label><div class="form-fields">${control}</div>${hint ? `<p class="hint">${esc(hint)}</p>` : ""}</div>`;
+/** Font Awesome icon per channel, used in labels and the state matrix. */
+const CHANNEL_ICONS = Object.freeze({
+  movement: "fa-solid fa-person-walking",
+  vision: "fa-solid fa-eye",
+  light: "fa-solid fa-lightbulb",
+  sound: "fa-solid fa-volume-high",
+  cover: "fa-solid fa-shield-halved",
+  ballistic: "fa-solid fa-crosshairs"
+});
+
+const MATRIX_STATES = Object.freeze(["closed", ...OVERRIDE_STATES]);
+
+const getPath = (object, path) => path.split(".").reduce((o, k) => o?.[k], object);
+
+function channelLabel(channel) {
+  return `<i class="${CHANNEL_ICONS[channel]}"></i> ${esc(t(`THRESHOLD.Channel.${channel}`))}`;
+}
+
+/** A stacked label + control. `label` may contain trusted markup (icons). */
+function field(label, control, cls = "") {
+  return `<div class="thr-field ${cls}"><label>${label}</label>${control}</div>`;
+}
+
+function section(id, icon, title, extra, body) {
+  return `<details class="thr-section" data-thr-section="${id}">
+      <summary><i class="${icon}"></i> <span class="thr-section-title">${esc(title)}</span> ${extra}</summary>
+      <div class="thr-section-body">${body}</div>
+    </details>`;
+}
+
+/** Restrictiveness of a value within its channel: blocked, partial or open. */
+function level(channel, value) {
+  const values = CHANNEL_VALUES[channel];
+  const openness = values.indexOf(value) / (values.length - 1);
+  return openness <= 0 ? "blocked" : openness >= 1 ? "open" : "partial";
 }
 
 /**
@@ -52,6 +85,7 @@ export class WallConfigTab {
     if (!root || !document || !game.user?.isGM) return;
     const content = root.querySelector(".window-content") ?? root;
     const form = root.tagName === "FORM" ? content : content.querySelector("form") ?? content;
+    form.classList.add("thr-tabbed");
 
     // Undo a previous injection, then build afresh from the current document.
     form.querySelector(":scope > .thr-tabs")?.remove();
@@ -93,13 +127,35 @@ export class WallConfigTab {
     });
 
     const existing = document.getFlag(MODULE_ID, FLAG_KEY) ?? null;
+    app._thresholdSections ??= { channels: true, states: false, material: false };
+    for (const details of panel.querySelectorAll("details[data-thr-section]")) {
+      details.open = Boolean(app._thresholdSections[details.dataset.thrSection]);
+    }
+    // toggle does not bubble, so listen in the capture phase.
+    panel.addEventListener("toggle", event => {
+      const section = event.target.dataset?.thrSection;
+      if (section) app._thresholdSections[section] = event.target.open;
+    }, true);
+
+    const openSection = section => {
+      const details = panel.querySelector(`details[data-thr-section="${section}"]`);
+      if (details && !details.open) details.open = true;
+      details?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
+
     panel.addEventListener("click", event => {
       const stateLink = event.target.closest("[data-thr-state]");
       if (stateLink && !stateLink.classList.contains("disabled")) {
         event.preventDefault();
-        app._thresholdOverrideState = stateLink.dataset.thrState;
-        this.showOverrideState(panel, stateLink.dataset.thrState);
-        app.setPosition?.({ height: "auto" });
+        const state = stateLink.dataset.thrState;
+        if (state === "closed") {
+          openSection("channels");
+          return;
+        }
+        app._thresholdOverrideState = state;
+        this.showOverrideState(panel, state);
+        // Clicks in the matrix also bring the editor into view.
+        if (stateLink.closest(".thr-matrix")) openSection("states");
         return;
       }
       const reset = event.target.closest("[data-thr-reset]");
@@ -117,13 +173,14 @@ export class WallConfigTab {
     });
     this.showOverrideState(panel, app._thresholdOverrideState ?? "open");
     this.refresh(panel, form, notice, existing);
-    activate(app._thresholdTab ?? "wall");
+    // Walls that already have a profile open on the Threshold tab.
+    activate(app._thresholdTab ?? (existing ? "threshold" : "wall"));
   }
 
   renderPanel(barrier) {
     const profileId = barrier?.profile ?? "";
     const b = barrier ?? makeBarrier();
-    const P = `${UI_PREFIX}`;
+    const P = UI_PREFIX;
     const ids = this.profiles.list();
     if (profileId && !ids.includes(profileId)) ids.unshift(profileId);
 
@@ -132,44 +189,50 @@ export class WallConfigTab {
     const stateSelect = `<select name="${P}.state">${STATES.map(s => option(s, t(`THRESHOLD.State.${s}`), b.state)).join("")}</select>`;
     const doorSelect = `<select name="${P}.interaction.door">${DOOR_MODES.map(m => option(m, t(`THRESHOLD.DoorMode.${m}`), b.interaction?.door ?? "none")).join("")}</select>`;
 
-    const channelRows = CHANNELS.map(c => group(
-      t(`THRESHOLD.Channel.${c}`),
+    const channelFields = CHANNELS.map(c => field(
+      channelLabel(c),
       `<select name="${P}.channels.${c}">${CHANNEL_VALUES[c].map(v => option(v, t(`THRESHOLD.Value.${v}`), b.channels[c])).join("")}</select>`
     )).join("");
 
-    const thresholdInputs = THRESHOLD_CHANNELS.map(c =>
-      `<label class="thr-inline">${esc(t(`THRESHOLD.Channel.${c}`))}<input type="number" min="0" step="0.5" name="${P}.thresholds.${c}" value="${esc(b.thresholds?.[c] ?? "")}" placeholder="—"></label>`
-    ).join("");
+    const thresholdFields = THRESHOLD_CHANNELS.map(c => field(
+      channelLabel(c),
+      `<input type="number" min="0" step="0.5" name="${P}.thresholds.${c}" value="${esc(b.thresholds?.[c] ?? "")}" placeholder="—">`
+    )).join("");
 
     const materials = this.profiles.listMaterials();
     const materialSelect = `<select name="${P}.material.id">${materials.map(m => option(m, this.materialLabel(m), b.material?.id)).join("")}</select>`;
     const durability = `<input type="number" min="0" name="${P}.material.durability" value="${esc(b.material?.durability ?? "")}" placeholder="—">`;
-
-    const check = key => `<label class="thr-inline"><input type="checkbox" name="${P}.interaction.${key}"${b.interaction?.[key] ? " checked" : ""}> ${esc(t(`THRESHOLD.Config.${key}`))}</label>`;
+    const check = (name, label) => `<label class="thr-check"><input type="checkbox" name="${P}.${name}"${getPath(b, name) ? " checked" : ""}> ${esc(label)}</label>`;
 
     return `
-      ${group(t("THRESHOLD.Config.Profile"), profileSelect, t("THRESHOLD.Config.ProfileHint"))}
+      <div class="thr-hero">
+        ${field(t("THRESHOLD.Config.Profile"), profileSelect, "thr-profile")}
+        <div class="thr-grid thr-grid-2">
+          ${field(t("THRESHOLD.Config.Door"), doorSelect)}
+          ${field(t("THRESHOLD.Config.State"), stateSelect)}
+        </div>
+        <div class="thr-matrix"></div>
+      </div>
       <div class="thr-body">
-        <fieldset>
-          <legend>${esc(t("THRESHOLD.Config.StateLegend"))}</legend>
-          ${group(t("THRESHOLD.Config.Door"), doorSelect)}
-          ${group(t("THRESHOLD.Config.State"), stateSelect)}
-          <div class="thr-preview"></div>
-        </fieldset>
-        <fieldset>
-          <legend>${esc(t("THRESHOLD.Config.Channels"))}</legend>
+        ${section("channels", "fa-solid fa-sliders", t("THRESHOLD.Config.Channels"), `<span class="thr-note">${esc(t("THRESHOLD.State.closed"))}</span>`, `
           <p class="hint">${esc(t("THRESHOLD.Config.ChannelsHint"))}</p>
-          ${channelRows}
-          ${group(t("THRESHOLD.Config.Thresholds"), thresholdInputs, t("THRESHOLD.Config.ThresholdsHint"))}
-          ${group(t("THRESHOLD.Config.Attenuation"), `<input type="checkbox" name="${P}.thresholds.attenuation"${b.thresholds?.attenuation ? " checked" : ""}>`, t("THRESHOLD.Config.AttenuationHint"))}
-        </fieldset>
-        ${this.renderOverrides(b)}
-        <fieldset>
-          <legend>${esc(t("THRESHOLD.Config.MaterialLegend"))}</legend>
-          ${group(t("THRESHOLD.Config.Material"), materialSelect)}
-          ${group(t("THRESHOLD.Config.Durability"), durability)}
-          <div class="form-group thr-checks">${check("playersCanOperate")}${check("lockable")}${check("destructible")}</div>
-        </fieldset>
+          <div class="thr-grid thr-grid-2">${channelFields}</div>
+          <h4 class="thr-subhead">${esc(t("THRESHOLD.Config.Thresholds"))}</h4>
+          <div class="thr-grid thr-grid-3">${thresholdFields}</div>
+          <p class="hint">${esc(t("THRESHOLD.Config.ThresholdsHint"))}</p>
+          ${check("thresholds.attenuation", t("THRESHOLD.Config.Attenuation"))}
+          <p class="hint">${esc(t("THRESHOLD.Config.AttenuationHint"))}</p>`)}
+        ${section("states", "fa-solid fa-code-branch", t("THRESHOLD.Config.OverridesLegend"), `<span class="thr-badge" data-thr-override-count></span>`, this.renderOverrides(b))}
+        ${section("material", "fa-solid fa-cubes", t("THRESHOLD.Config.MaterialLegend"), `<span class="thr-note" data-thr-material-summary></span>`, `
+          <div class="thr-grid thr-grid-2">
+            ${field(t("THRESHOLD.Config.Material"), materialSelect)}
+            ${field(t("THRESHOLD.Config.Durability"), durability)}
+          </div>
+          <div class="thr-checks">
+            ${check("interaction.playersCanOperate", t("THRESHOLD.Config.playersCanOperate"))}
+            ${check("interaction.lockable", t("THRESHOLD.Config.lockable"))}
+            ${check("interaction.destructible", t("THRESHOLD.Config.destructible"))}
+          </div>`)}
       </div>`;
   }
 
@@ -182,28 +245,26 @@ export class WallConfigTab {
     const nav = OVERRIDE_STATES.map(s => `<a data-thr-state="${s}">${esc(t(`THRESHOLD.State.${s}`))}</a>`).join("");
     const groups = OVERRIDE_STATES.map(state => {
       const override = b.stateOverrides?.[state] ?? {};
-      const rows = CHANNELS.map(c => group(
-        t(`THRESHOLD.Channel.${c}`),
+      const fields = CHANNELS.map(c => field(
+        channelLabel(c),
         `<select name="${P}.${state}.${c}">${option("", t("THRESHOLD.Config.Default"), override[c] ?? "")}`
           + CHANNEL_VALUES[c].map(v => option(v, t(`THRESHOLD.Value.${v}`), override[c] ?? "")).join("") + "</select>"
       )).join("");
       return `<div class="thr-override-group" data-thr-state-group="${state}">
           <p class="hint">${esc(t(`THRESHOLD.Config.OverrideHint.${state}`))}</p>
-          ${rows}
+          <div class="thr-grid thr-grid-2">${fields}</div>
           <button type="button" class="thr-reset" data-thr-reset="${state}"><i class="fa-solid fa-rotate-left"></i> ${esc(t("THRESHOLD.Config.ResetState"))}</button>
         </div>`;
     }).join("");
-    return `<fieldset class="thr-overrides">
-        <legend>${esc(t("THRESHOLD.Config.OverridesLegend"))}</legend>
-        <p class="hint">${esc(t("THRESHOLD.Config.OverridesHint"))}</p>
-        <nav class="thr-state-tabs">${nav}</nav>
-        ${groups}
-      </fieldset>`;
+    return `<p class="hint">${esc(t("THRESHOLD.Config.OverridesHint"))}</p>
+      <nav class="thr-state-tabs">${nav}</nav>
+      ${groups}`;
   }
 
   showOverrideState(panel, state) {
     for (const el of panel.querySelectorAll("[data-thr-state-group]")) el.classList.toggle("active", el.dataset.thrStateGroup === state);
-    for (const a of panel.querySelectorAll("[data-thr-state]")) a.classList.toggle("active", a.dataset.thrState === state);
+    for (const a of panel.querySelectorAll(".thr-state-tabs [data-thr-state]")) a.classList.toggle("active", a.dataset.thrState === state);
+    for (const th of panel.querySelectorAll(".thr-matrix [data-thr-state]")) th.classList.toggle("editing", th.dataset.thrState === state);
   }
 
   /**
@@ -213,6 +274,7 @@ export class WallConfigTab {
   refreshOverrides(panel, ui, isDoor) {
     const channels = { ...makeBarrier().channels };
     for (const c of CHANNELS) if (CHANNEL_VALUES[c].includes(ui.channels?.[c])) channels[c] = ui.channels[c];
+    let count = 0;
     for (const state of OVERRIDE_STATES) {
       const fallback = PropertyEngine.effectiveChannels({ enabled: true, channels, state, stateOverrides: {} });
       let overridden = false;
@@ -220,16 +282,21 @@ export class WallConfigTab {
         const select = panel.querySelector(`[name="${UI_PREFIX}.stateOverrides.${state}.${c}"]`);
         if (!select) continue;
         select.options[0].textContent = game.i18n.format("THRESHOLD.Config.DefaultValue", { value: t(`THRESHOLD.Value.${fallback[c]}`) });
+        select.classList.toggle("thr-overridden", Boolean(select.value));
         if (select.value) overridden = true;
       }
-      const link = panel.querySelector(`[data-thr-state="${state}"]`);
+      if (overridden) count++;
+      const link = panel.querySelector(`.thr-state-tabs [data-thr-state="${state}"]`);
       link.classList.toggle("thr-has-override", overridden);
       const unavailable = !isDoor && DOOR_ONLY_STATES.includes(state);
       link.classList.toggle("disabled", unavailable);
       link.title = unavailable ? t("THRESHOLD.Config.DoorOnlyState") : "";
     }
+    const badge = panel.querySelector("[data-thr-override-count]");
+    badge.textContent = count ? game.i18n.format("THRESHOLD.Config.OverrideCount", { count }) : "";
+    badge.hidden = !count;
     // Do not leave a door-only state open when the barrier is no longer a door.
-    const active = panel.querySelector("[data-thr-state].active");
+    const active = panel.querySelector(".thr-state-tabs [data-thr-state].active");
     if (active?.classList.contains("disabled")) this.showOverrideState(panel, "open");
   }
 
@@ -275,6 +342,7 @@ export class WallConfigTab {
     const active = Boolean(ui.profile);
     const sync = this.syncEnabled();
     panel.querySelector(".thr-body").classList.toggle("thr-disabled", !active);
+    panel.querySelector(".thr-body").inert = !active;
     for (const el of panel.querySelectorAll(`[name^="${UI_PREFIX}."]`)) {
       if (el.name !== `${UI_PREFIX}.profile`) el.disabled = !active;
     }
@@ -299,12 +367,20 @@ export class WallConfigTab {
       : t("THRESHOLD.Config.RemoveNotice");
 
     this.refreshOverrides(panel, ui, isDoor);
-    this.renderPreview(panel.querySelector(".thr-preview"), ui, existing);
+    this.renderMatrix(panel.querySelector(".thr-matrix"), ui, existing, isDoor);
+    const durability = ui.material?.durability;
+    panel.querySelector("[data-thr-material-summary]").textContent = active
+      ? [this.materialLabel(ui.material?.id), durability === "" || durability == null ? null : `${t("THRESHOLD.Config.Durability")} ${durability}`].filter(Boolean).join(" · ")
+      : "";
   }
 
-  renderPreview(target, ui, existing) {
+  /**
+   * Read-only overview: what each channel does in every state, with the current state
+   * highlighted and overridden cells marked. Clicking a state opens it for editing.
+   */
+  renderMatrix(target, ui, existing, isDoor) {
     if (!ui.profile) {
-      target.innerHTML = `<p class="hint">${esc(t("THRESHOLD.Config.PreviewNone"))}</p>`;
+      target.innerHTML = `<p class="hint thr-empty"><i class="fa-solid fa-circle-info"></i> ${esc(t("THRESHOLD.Config.PreviewNone"))}</p>`;
       return;
     }
     let barrier;
@@ -314,14 +390,33 @@ export class WallConfigTab {
       target.innerHTML = `<p class="thr-error">${esc(err.message)}</p>`;
       return;
     }
-    const effective = PropertyEngine.effectiveChannels(barrier);
-    const items = CHANNELS.map(c => {
-      const values = CHANNEL_VALUES[c];
-      const openness = values.indexOf(effective[c]) / (values.length - 1);
-      const level = openness === 0 ? "blocked" : openness === 1 ? "open" : "partial";
-      return `<li class="thr-chip thr-${level}"><span>${esc(t(`THRESHOLD.Channel.${c}`))}</span><strong>${esc(t(`THRESHOLD.Value.${effective[c]}`))}</strong></li>`;
+    const editing = target.closest(".thr-panel")?.querySelector(".thr-state-tabs .active")?.dataset.thrState;
+    const head = MATRIX_STATES.map(state => {
+      const unavailable = !isDoor && DOOR_ONLY_STATES.includes(state);
+      const cls = [state === barrier.state ? "current" : "", state === editing ? "editing" : "", unavailable ? "disabled" : ""].join(" ");
+      const title = `${t(`THRESHOLD.State.${state}`)} — ${t("THRESHOLD.Config.MatrixEdit")}`;
+      return `<th class="${cls}" data-thr-state="${state}" title="${esc(title)}">${esc(t(`THRESHOLD.StateShort.${state}`))}</th>`;
     }).join("");
-    const stateLabel = t(`THRESHOLD.State.${barrier.state}`);
-    target.innerHTML = `<p class="thr-preview-title">${esc(game.i18n.format("THRESHOLD.Config.Preview", { state: stateLabel }))}</p><ul>${items}</ul>`;
+    const rows = CHANNELS.map(c => {
+      const cells = MATRIX_STATES.map(state => {
+        if (!isDoor && DOOR_ONLY_STATES.includes(state)) return `<td class="na">—</td>`;
+        const value = PropertyEngine.effectiveChannels({ ...barrier, state })[c];
+        const overridden = barrier.stateOverrides?.[state]?.[c] != null;
+        const title = `${t(`THRESHOLD.Channel.${c}`)}: ${t(`THRESHOLD.Value.${value}`)}`;
+        return `<td class="thr-${level(c, value)}${state === barrier.state ? " current" : ""}${overridden ? " overridden" : ""}" title="${esc(title)}">${esc(t(`THRESHOLD.ValueShort.${value}`))}</td>`;
+      }).join("");
+      return `<tr><th scope="row" title="${esc(t(`THRESHOLD.Channel.${c}`))}"><i class="${CHANNEL_ICONS[c]}"></i></th>${cells}</tr>`;
+    }).join("");
+    target.innerHTML = `
+      <table>
+        <thead><tr><th></th>${head}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="thr-legend">
+        <span class="thr-key thr-blocked"></span>${esc(t("THRESHOLD.Config.LegendBlocked"))}
+        <span class="thr-key thr-partial"></span>${esc(t("THRESHOLD.Config.LegendPartial"))}
+        <span class="thr-key thr-open"></span>${esc(t("THRESHOLD.Config.LegendOpen"))}
+        <span class="thr-dot"></span>${esc(t("THRESHOLD.Config.LegendOverride"))}
+      </p>`;
   }
 }

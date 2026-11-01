@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.5.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.5.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -23,8 +23,11 @@ Enable **Threshold — Environment Interaction Framework** in your world's Manag
 Double-click a wall (or right-click → configure) as a GM. The wall sheet gets two tabs:
 
 - **Wall:** Foundry's own settings. While a Threshold profile is active, the movement, sight, light, sound and door fields are locked, and a notice says which profile controls them.
-- **Threshold:** pick a **barrier profile**, then adjust anything for this particular wall: door control, state, each channel, proximity range (in grid squares), material, durability and interaction flags. A live preview shows what the barrier lets through in the chosen state.
-- **Behaviour in other states** (on the Threshold tab): for Open, Ajar, Locked and Damaged, set what each channel does in that state. Every field starts at **Default (…)**, which shows what the built-in rule gives; pick a value to override it. States with overrides are marked with a dot, and Ajar/Locked are available only for doors.
+- **Threshold:** a wall that already has a profile opens on this tab. At the top: the **barrier profile**, door control, current state, and a **state matrix** with each channel's behaviour (rows) in every state (columns), coloured from blocks to lets through. The current state is outlined, and a dot marks a value overridden for that state. Click a state's column to edit it.
+- Below are three collapsible sections:
+  - **What gets through:** the base channels for the closed barrier, plus proximity range (in grid squares) and attenuation.
+  - **Behaviour in other states:** for Open, Ajar, Locked and Damaged, set what each channel does. Every field starts at **Default (…)**, which shows what the built-in rule gives; pick a value to override it. Ajar and Locked are available only for doors.
+  - **Material and interaction:** material, durability, and whether players can operate, lock or destroy the barrier.
 
 Click **Update Wall** to save the profile and the matching native settings in one update. Set the profile back to **None** and save to restore the wall's original settings.
 

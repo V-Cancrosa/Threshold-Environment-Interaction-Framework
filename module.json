@@ -2,7 +2,7 @@
   "id": "threshold",
   "title": "Threshold — Environment Interaction Framework",
   "description": "Advanced spatial barriers, perception and environmental interaction for Foundry VTT.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "authors": [
     {
       "name": "V-Cancrosa"
@@ -32,5 +32,5 @@
   "flags": {},
   "url": "https://github.com/V-Cancrosa/Threshold-Environment-Interaction-Framework",
   "manifest": "https://github.com/V-Cancrosa/Threshold-Environment-Interaction-Framework/releases/latest/download/module.json",
-  "download": "https://github.com/V-Cancrosa/Threshold-Environment-Interaction-Framework/releases/download/v0.5.0/threshold.zip"
+  "download": "https://github.com/V-Cancrosa/Threshold-Environment-Interaction-Framework/releases/download/v0.5.1/threshold.zip"
 }

@@ -27,7 +27,7 @@
       "WallTab": "Ściana",
       "Profile": "Profil przeszkody",
       "ProfileNone": "— Brak (zwykła ściana Foundry) —",
-      "ProfileHint": "Wybranie profilu wypełnia poniższe ustawienia. Każde z nich możesz dostosować dla tej ściany.",
+      "ProfileHint": "Wybranie profilu wypełnia poniższe ustawienia.",
       "StateLegend": "Drzwi i stan",
       "Door": "Sterowanie drzwiami",
       "State": "Stan",
@@ -43,7 +43,6 @@
       "playersCanOperate": "Gracze mogą używać",
       "lockable": "Można zamknąć na klucz",
       "destructible": "Można zniszczyć",
-      "Preview": "Obecnie obowiązuje ({state})",
       "PreviewNone": "Brak profilu: to zwykła ściana Foundry.",
       "ManagedNotice": "Ruch, wzrok, światło, dźwięk i drzwi kontroluje profil Threshold „{profile}”. Zmieniaj je w zakładce Threshold.",
       "RemoveNotice": "Zapisanie usunie profil Threshold i przywróci pierwotne ustawienia tej ściany.",
@@ -59,7 +58,13 @@
       "Default": "Domyślnie",
       "DefaultValue": "Domyślnie ({value})",
       "ResetState": "Wyczyść nadpisania tego stanu",
-      "DoorOnlyState": "Dostępne tylko, gdy sterowanie drzwiami to Drzwi lub Ukryte drzwi."
+      "DoorOnlyState": "Dostępne tylko, gdy sterowanie drzwiami to Drzwi lub Ukryte drzwi.",
+      "MatrixEdit": "Kliknij, aby edytować ten stan",
+      "LegendBlocked": "blokuje",
+      "LegendPartial": "częściowo",
+      "LegendOpen": "przepuszcza",
+      "LegendOverride": "nadpisanie",
+      "OverrideCount": "zmienione: {count}"
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"
@@ -114,6 +119,27 @@
       "viewing-slot": "Wizjer / strzelnica",
       "force-field": "Pole siłowe",
       "barricade": "Barykada"
+    },
+    "ValueShort": {
+      "blocked": "Blokuje",
+      "passable": "Wolne",
+      "limited": "Ogranicz.",
+      "proximity": "Z bliska",
+      "distance": "Z dala",
+      "transparent": "Widać",
+      "transmitted": "Przechodzi",
+      "attenuated": "Tłumi",
+      "none": "Brak",
+      "partial": "Częściowa",
+      "full": "Pełna",
+      "conditional": "Warunk."
+    },
+    "StateShort": {
+      "closed": "Zamknięte",
+      "open": "Otwarte",
+      "ajar": "Uchylone",
+      "locked": "Na klucz",
+      "damaged": "Uszkodz."
     }
   }
 }
