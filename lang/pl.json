@@ -1,0 +1,10 @@
+{
+  "THRESHOLD": {
+    "Settings": {
+      "Debug": {
+        "Name": "Logowanie diagnostyczne Threshold",
+        "Hint": "Włącza szczegółowe logowanie na potrzeby rozwoju modułu Threshold."
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "THRESHOLD": {
+    "Settings": {
+      "Debug": {
+        "Name": "Threshold Debug Logging",
+        "Hint": "Enable verbose logging for Threshold development."
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "generic": { "label": "Generic", "durability": null, "hardness": null },
+  "wood": { "label": "Wood", "durability": 30, "hardness": 3 },
+  "stone": { "label": "Stone", "durability": 100, "hardness": 10 },
+  "steel": { "label": "Steel", "durability": 120, "hardness": 12 },
+  "glass": { "label": "Glass", "durability": 15, "hardness": 1 },
+  "reinforced-glass": { "label": "Reinforced Glass", "durability": 80, "hardness": 8 }
+}

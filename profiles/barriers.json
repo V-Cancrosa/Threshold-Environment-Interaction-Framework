@@ -1,0 +1,18 @@
+{
+  "solid-wall": {
+    "type": "wall",
+    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "attenuated", "cover": "full", "ballistic": "blocked" }
+  },
+  "transparent-barrier": {
+    "type": "window",
+    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "attenuated", "cover": "partial", "ballistic": "blocked" }
+  },
+  "bars": {
+    "type": "bars",
+    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "transmitted", "cover": "partial", "ballistic": "conditional" }
+  },
+  "viewing-slot": {
+    "type": "opening",
+    "channels": { "movement": "blocked", "vision": "limited", "light": "limited", "sound": "attenuated", "cover": "full", "ballistic": "conditional" }
+  }
+}
