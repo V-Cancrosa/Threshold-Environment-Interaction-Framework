@@ -29,6 +29,18 @@ export class PropertyEngine {
     return this.effectiveChannels(barrier)[channel];
   }
 
+  /**
+   * Durability as numbers. Returns null for barriers without a maximum durability.
+   * @returns {{current: number, max: number, ratio: number}|null}
+   */
+  static integrity(barrier) {
+    const max = barrier?.material?.durability;
+    if (typeof max !== "number" || max <= 0) return null;
+    const stored = barrier.integrity?.current;
+    const current = typeof stored === "number" ? Math.min(Math.max(stored, 0), max) : max;
+    return { current, max, ratio: current / max };
+  }
+
   static isMovementBlocked(barrier) {
     return this.getChannel(barrier, "movement") === "blocked";
   }

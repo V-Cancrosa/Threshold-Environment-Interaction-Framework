@@ -2,6 +2,7 @@ import { CHANNELS, CHANNEL_VALUES, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRE
 import { makeBarrier } from "../core/defaults.js";
 import { PropertyEngine } from "../properties/property-engine.js";
 import { UI_PREFIX, barrierFromForm } from "./wall-form.js";
+import { integrityColorNumber } from "../canvas/durability-bars.js";
 
 /** Native WallConfig inputs that Threshold takes over while a profile is active. */
 const NATIVE_SELECTOR = ["move", "sight", "light", "sound", "door", "ds"].map(n => `[name="${n}"]`)
@@ -46,6 +47,11 @@ function section(id, icon, title, extra, body) {
       <summary><i class="${icon}"></i> <span class="thr-section-title">${esc(title)}</span> ${extra}</summary>
       <div class="thr-section-body">${body}</div>
     </details>`;
+}
+
+/** CSS version of the durability bar colour (see durability-bars.js). */
+export function integrityColor(ratio) {
+  return `#${integrityColorNumber(ratio).toString(16).padStart(6, "0")}`;
 }
 
 /** Restrictiveness of a value within its channel: blocked, partial or open. */
@@ -169,6 +175,7 @@ export class WallConfigTab {
       const name = event.target.name ?? "";
       if (name === `${UI_PREFIX}.profile`) this.fillFromProfile(panel, event.target.value, existing);
       if (name === `${UI_PREFIX}.material.id`) this.fillMaterial(panel, event.target.value);
+      this.autofillThreshold(panel, name, event.target.value);
       this.refresh(panel, form, notice, existing);
     });
     this.showOverrideState(panel, app._thresholdOverrideState ?? "open");
@@ -197,11 +204,14 @@ export class WallConfigTab {
     const thresholdFields = THRESHOLD_CHANNELS.map(c => field(
       channelLabel(c),
       `<input type="number" min="0" step="0.5" name="${P}.thresholds.${c}" value="${esc(b.thresholds?.[c] ?? "")}" placeholder="—">`
+        + `<span class="thr-unit" data-thr-unit="${c}"></span>`,
+      "thr-threshold"
     )).join("");
 
     const materials = this.profiles.listMaterials();
     const materialSelect = `<select name="${P}.material.id">${materials.map(m => option(m, this.materialLabel(m), b.material?.id)).join("")}</select>`;
     const durability = `<input type="number" min="0" name="${P}.material.durability" value="${esc(b.material?.durability ?? "")}" placeholder="—">`;
+    const current = `<input type="number" min="0" name="${P}.integrity.current" value="${esc(b.integrity?.current ?? "")}" placeholder="—">`;
     const check = (name, label) => `<label class="thr-check"><input type="checkbox" name="${P}.${name}"${getPath(b, name) ? " checked" : ""}> ${esc(label)}</label>`;
 
     return `
@@ -224,10 +234,12 @@ export class WallConfigTab {
           <p class="hint">${esc(t("THRESHOLD.Config.AttenuationHint"))}</p>`)}
         ${section("states", "fa-solid fa-code-branch", t("THRESHOLD.Config.OverridesLegend"), `<span class="thr-badge" data-thr-override-count></span>`, this.renderOverrides(b))}
         ${section("material", "fa-solid fa-cubes", t("THRESHOLD.Config.MaterialLegend"), `<span class="thr-note" data-thr-material-summary></span>`, `
+          ${field(t("THRESHOLD.Config.Material"), materialSelect)}
           <div class="thr-grid thr-grid-2">
-            ${field(t("THRESHOLD.Config.Material"), materialSelect)}
+            ${field(t("THRESHOLD.Config.CurrentDurability"), current)}
             ${field(t("THRESHOLD.Config.Durability"), durability)}
           </div>
+          <div class="thr-integrity" data-thr-integrity></div>
           <div class="thr-checks">
             ${check("interaction.playersCanOperate", t("THRESHOLD.Config.playersCanOperate"))}
             ${check("interaction.lockable", t("THRESHOLD.Config.lockable"))}
@@ -327,14 +339,25 @@ export class WallConfigTab {
     this.setField(panel, "thresholds.attenuation", b.thresholds.attenuation);
     this.setField(panel, "material.id", b.material.id);
     this.setField(panel, "material.durability", b.material.durability);
+    this.setField(panel, "integrity.current", b.integrity?.current ?? null);
     for (const k of ["playersCanOperate", "lockable", "destructible"]) this.setField(panel, `interaction.${k}`, b.interaction[k]);
     for (const state of OVERRIDE_STATES) {
       for (const c of CHANNELS) this.setField(panel, `stateOverrides.${state}.${c}`, b.stateOverrides?.[state]?.[c] ?? "");
     }
   }
 
+  /** Switching a channel to Proximity/Distance with no range set fills in 1 grid square. */
+  autofillThreshold(panel, name, value) {
+    if (!["proximity", "distance"].includes(value)) return;
+    const channel = name.split(".").pop();
+    if (!THRESHOLD_CHANNELS.includes(channel)) return;
+    const input = panel.querySelector(`[name="${UI_PREFIX}.thresholds.${channel}"]`);
+    if (input && input.value === "") input.value = 1;
+  }
+
   fillMaterial(panel, materialId) {
     this.setField(panel, "material.durability", this.profiles.getMaterial(materialId)?.durability ?? null);
+    this.setField(panel, "integrity.current", null);
   }
 
   refresh(panel, form, notice, existing) {
@@ -368,16 +391,63 @@ export class WallConfigTab {
 
     this.refreshOverrides(panel, ui, isDoor);
     this.renderMatrix(panel.querySelector(".thr-matrix"), ui, existing, isDoor);
-    const durability = ui.material?.durability;
+    const integrity = this.formIntegrity(ui);
     panel.querySelector("[data-thr-material-summary]").textContent = active
-      ? [this.materialLabel(ui.material?.id), durability === "" || durability == null ? null : `${t("THRESHOLD.Config.Durability")} ${durability}`].filter(Boolean).join(" · ")
+      ? [this.materialLabel(ui.material?.id), integrity ? `${integrity.current}/${integrity.max}` : null].filter(Boolean).join(" · ")
       : "";
+    this.renderIntegrity(panel.querySelector("[data-thr-integrity]"), integrity);
+    this.refreshThresholds(panel, ui);
   }
 
   /**
    * Read-only overview: what each channel does in every state, with the current state
    * highlighted and overridden cells marked. Clicking a state opens it for editing.
    */
+  /** Durability as currently typed in the form. */
+  formIntegrity(ui) {
+    const max = ui.material?.durability === "" ? null : Number(ui.material?.durability);
+    const raw = ui.integrity?.current;
+    return PropertyEngine.integrity({
+      material: { durability: Number.isFinite(max) ? max : null },
+      integrity: { current: raw === "" || raw == null ? null : Number(raw) }
+    });
+  }
+
+  renderIntegrity(target, integrity) {
+    if (!integrity) {
+      target.innerHTML = `<p class="hint">${esc(t("THRESHOLD.Config.NoDurability"))}</p>`;
+      return;
+    }
+    const pct = Math.round(integrity.ratio * 100);
+    target.innerHTML = `<div class="thr-bar" title="${integrity.current} / ${integrity.max}">`
+      + `<div class="thr-bar-fill" style="width:${pct}%; background:${integrityColor(integrity.ratio)}"></div>`
+      + `<span>${integrity.current} / ${integrity.max}</span></div>`
+      + `<p class="hint">${esc(t("THRESHOLD.Config.DurabilityHint"))}</p>`;
+  }
+
+  /**
+   * Show each proximity range in scene units, and flag ranges that no channel uses
+   * (or that a proximity channel is missing).
+   */
+  refreshThresholds(panel, ui) {
+    const grid = globalThis.canvas?.scene?.grid;
+    const distance = grid?.distance ?? 1;
+    const units = grid?.units ?? "";
+    for (const c of THRESHOLD_CHANNELS) {
+      const values = [ui.channels?.[c], ...OVERRIDE_STATES.map(s => ui.stateOverrides?.[s]?.[c])];
+      const used = values.some(v => v === "proximity" || v === "distance");
+      const raw = ui.thresholds?.[c];
+      const grids = raw === "" || raw == null ? null : Number(raw);
+      const unit = panel.querySelector(`[data-thr-unit="${c}"]`);
+      const fieldEl = unit.closest(".thr-field");
+      fieldEl.classList.toggle("thr-unused", !used);
+      fieldEl.classList.toggle("thr-missing", used && grids === null);
+      unit.textContent = !used ? t("THRESHOLD.Config.ThresholdUnused")
+        : grids === null ? t("THRESHOLD.Config.ThresholdMissing")
+        : `= ${+(grids * distance).toFixed(2)} ${units}`.trim();
+    }
+  }
+
   renderMatrix(target, ui, existing, isDoor) {
     if (!ui.profile) {
       target.innerHTML = `<p class="hint thr-empty"><i class="fa-solid fa-circle-info"></i> ${esc(t("THRESHOLD.Config.PreviewNone"))}</p>`;

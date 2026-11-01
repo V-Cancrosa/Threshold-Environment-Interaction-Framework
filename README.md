@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.5.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.6.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -27,7 +27,9 @@ Double-click a wall (or right-click → configure) as a GM. The wall sheet gets 
 - Below are three collapsible sections:
   - **What gets through:** the base channels for the closed barrier, plus proximity range (in grid squares) and attenuation.
   - **Behaviour in other states:** for Open, Ajar, Locked and Damaged, set what each channel does. Every field starts at **Default (…)**, which shows what the built-in rule gives; pick a value to override it. Ajar and Locked are available only for doors.
-  - **Material and interaction:** material, durability, and whether players can operate, lock or destroy the barrier.
+  - **Material and interaction:** material, current and maximum durability (with a bar), and whether players can operate, lock or destroy the barrier.
+
+Proximity ranges are entered in **grid squares** so profiles work in any system; the sheet shows each range in scene units (e.g. `= 5 ft`) and flags ranges that no channel uses.
 
 Click **Update Wall** to save the profile and the matching native settings in one update. Set the profile back to **None** and save to restore the wall's original settings.
 
@@ -54,25 +56,48 @@ Players can open and close Threshold doors with Foundry's normal door controls. 
 | Profile | Movement | Vision | Light | Sound | Notes |
 |---|---|---|---|---|---|
 | `solid-wall` | blocked | blocked | blocked | attenuated | stone |
-| `partition` | blocked | blocked | blocked | transmitted | thin wall, destructible |
-| `door` | blocked | blocked | blocked | attenuated | wooden door, lockable |
+| `partition` | blocked | blocked | blocked | transmitted | thin wall; broken → passable |
+| `door` | blocked | blocked | blocked | proximity 1 | wooden door; hear through it only up close; broken → passable |
 | `reinforced-door` | blocked | blocked | blocked | blocked | steel |
-| `secret-door` | blocked | blocked | blocked | attenuated | native secret door |
+| `secret-door` | blocked | blocked | blocked | proximity ½ | native secret door |
 | `gate` | blocked | transparent | transmitted | transmitted | bars you can open (furtka) |
-| `glass-door` | blocked | transparent | transmitted | attenuated | |
-| `frosted-glass-door` | blocked | blocked | transmitted | attenuated | lets light in, not sight |
-| `window` | blocked | proximity (1 grid) | transmitted | attenuated | breaking it (`damaged`) clears the view |
-| `curtained-window` | blocked | blocked | limited | attenuated | `open` = curtains drawn back |
+| `glass-door` | blocked | transparent | transmitted | proximity 2 | |
+| `frosted-glass-door` | blocked | blocked | transmitted | proximity 2 | lets light in, not sight |
+| `window` | blocked | proximity 1 | transmitted | proximity 2 | breaking it (`damaged`) clears the view |
+| `curtained-window` | blocked | blocked | limited | attenuated | `open` = curtains drawn back (vision proximity 1) |
 | `armored-glass` | blocked | transparent | transmitted | blocked | stops bullets |
 | `bars` | blocked | transparent | transmitted | transmitted | fixed bars |
-| `viewing-slot` | blocked | limited | limited | attenuated | peephole / arrow slit |
+| `viewing-slot` | blocked | proximity ½ | limited | attenuated | peephole / arrow slit: eye to the slot |
 | `force-field` | blocked | transparent | transmitted | blocked | `damaged` = field down |
 | `barricade` | blocked | transparent | transmitted | transmitted | partial cover, destructible |
+
+Proximity values are in grid squares. Sound proximity uses attenuation, so it fades rather than cutting off.
 
 Customise any profile when attaching it:
 
 ```js
 await thr.apply("window", undefined, { thresholds: { vision: 2 } });  // see through within 2 grid squares
+```
+
+## Durability and damage
+
+Destructible barriers with a maximum durability (from their material, e.g. wood 30, glass 15) can be damaged:
+
+```js
+await thr.damage(10);              // first selected wall
+await thr.repair(5);               // or thr.repair() to restore fully
+await thr.barriers.damage(wall, 10, { source: actor });
+```
+
+At 0 the barrier switches to **Damaged** (a broken door or window becomes passable); repairing it above 0 returns it to **Closed**. Indestructible barriers refuse damage unless you pass `{ force: true }`.
+
+A durability bar is drawn on the map under each destructible barrier. The **Durability bars on the map** setting chooses who sees them: nobody, the GM only (default), or GM and players (players only see bars at spots they can see).
+
+System adapters can hook in:
+
+```js
+Hooks.on("threshold.preDamage", ctx => { ctx.amount -= ctx.barrier.material.hardness; }); // or return false to cancel
+Hooks.on("threshold.broken", (wall, barrier) => { /* play a sound, post to chat… */ });
 ```
 
 ## How states work
@@ -121,7 +146,7 @@ Barrier data is stored on the wall at `flags.threshold.barrier`. Every Threshold
 - Player interaction with non-door barriers (curtains, etc.) via a GM-validated socket request.
 - Segment openings (e.g. a door with a viewing slot as one object).
 - Door leaf rotation on the canvas and opening by a given angle.
-- Durability, damage and destruction workflows.
+- Textures for barriers on the map (next milestone).
 - Cover, ballistic and system adapters (D&D 5e, Cyberpunk RED, WFRP…).
 
 ## Development

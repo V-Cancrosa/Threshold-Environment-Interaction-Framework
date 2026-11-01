@@ -32,8 +32,13 @@ export const DEFAULT_BARRIER = Object.freeze({
   stateOverrides: {},
   material: {
     id: "generic",
+    /** Maximum durability; null means the barrier cannot be damaged. */
     durability: null,
     hardness: null
+  },
+  /** Current condition. current: null means "at full durability". */
+  integrity: {
+    current: null
   },
   interaction: {
     door: "none",

@@ -8,6 +8,13 @@
       "Debug": {
         "Name": "Threshold Debug Logging",
         "Hint": "Enable verbose logging for Threshold development."
+      },
+      "DurabilityBars": {
+        "Name": "Durability bars on the map",
+        "Hint": "Who sees durability bars over destructible barriers. Players see a bar only when they can see that spot.",
+        "None": "Nobody",
+        "GM": "GM only",
+        "All": "GM and players"
       }
     },
     "Material": {
@@ -34,12 +41,12 @@
       "Channels": "What gets through",
       "ChannelsHint": "Base values for the closed barrier. Open, ajar and damaged states adjust them automatically.",
       "Thresholds": "Proximity range",
-      "ThresholdsHint": "In grid squares. Used only by channels set to Proximity or Distance.",
+      "ThresholdsHint": "In grid squares; the value in scene units is shown below each field. Used only by channels set to Proximity or Distance (in any state).",
       "Attenuation": "Attenuate",
       "AttenuationHint": "Light and sound passing the proximity range fade gradually.",
       "MaterialLegend": "Material and interaction",
       "Material": "Material",
-      "Durability": "Durability",
+      "Durability": "Max durability",
       "playersCanOperate": "Players can operate",
       "lockable": "Lockable",
       "destructible": "Destructible",
@@ -64,7 +71,12 @@
       "LegendPartial": "partly",
       "LegendOpen": "lets through",
       "LegendOverride": "override",
-      "OverrideCount": "{count} edited"
+      "OverrideCount": "{count} edited",
+      "CurrentDurability": "Current durability",
+      "NoDurability": "No maximum durability: this barrier cannot be damaged.",
+      "DurabilityHint": "Leave Current empty for full durability. At 0 the barrier switches to the Damaged state.",
+      "ThresholdUnused": "not used",
+      "ThresholdMissing": "set a range"
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"

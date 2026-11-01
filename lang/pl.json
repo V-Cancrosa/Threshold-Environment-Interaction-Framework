@@ -8,6 +8,13 @@
       "Debug": {
         "Name": "Logowanie diagnostyczne Threshold",
         "Hint": "Włącza szczegółowe logowanie na potrzeby rozwoju modułu Threshold."
+      },
+      "DurabilityBars": {
+        "Name": "Paski wytrzymałości na mapie",
+        "Hint": "Kto widzi paski wytrzymałości nad zniszczalnymi przeszkodami. Gracze widzą pasek tylko wtedy, gdy widzą to miejsce.",
+        "None": "Nikt",
+        "GM": "Tylko MG",
+        "All": "MG i gracze"
       }
     },
     "Material": {
@@ -34,12 +41,12 @@
       "Channels": "Co przechodzi przez przeszkodę",
       "ChannelsHint": "Wartości bazowe dla zamkniętej przeszkody. Stany otwarte, uchylone i uszkodzone zmieniają je automatycznie.",
       "Thresholds": "Zasięg bliskości",
-      "ThresholdsHint": "W polach siatki. Używany tylko przez kanały ustawione na Bliskość lub Odległość.",
+      "ThresholdsHint": "W polach siatki; pod każdym polem widać przeliczenie na jednostki sceny. Używane tylko przez kanały ustawione na Bliskość lub Odległość (w dowolnym stanie).",
       "Attenuation": "Wygaszanie",
       "AttenuationHint": "Światło i dźwięk za progiem bliskości słabną stopniowo.",
       "MaterialLegend": "Materiał i interakcje",
       "Material": "Materiał",
-      "Durability": "Wytrzymałość",
+      "Durability": "Maks. wytrzymałość",
       "playersCanOperate": "Gracze mogą używać",
       "lockable": "Można zamknąć na klucz",
       "destructible": "Można zniszczyć",
@@ -64,7 +71,12 @@
       "LegendPartial": "częściowo",
       "LegendOpen": "przepuszcza",
       "LegendOverride": "nadpisanie",
-      "OverrideCount": "zmienione: {count}"
+      "OverrideCount": "zmienione: {count}",
+      "CurrentDurability": "Aktualna wytrzymałość",
+      "NoDurability": "Brak maksymalnej wytrzymałości: tej przeszkody nie da się uszkodzić.",
+      "DurabilityHint": "Puste pole „Aktualna” oznacza pełną wytrzymałość. Przy 0 przeszkoda przechodzi w stan Uszkodzone.",
+      "ThresholdUnused": "nieużywany",
+      "ThresholdMissing": "ustaw zasięg"
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"

@@ -196,3 +196,31 @@
 .thr-wall-tab .thr-managed { opacity: 0.5; }
 .thr-managed-notice { margin: 0; padding: 0.4rem 0.6rem; border-radius: 4px; }
 .thr-managed-notice[hidden] { display: none; }
+
+/* ---- Proximity ranges ---- */
+.thr-threshold .thr-unit { font-size: var(--font-size-11, 11px); opacity: 0.7; }
+.thr-threshold.thr-unused input { opacity: 0.45; }
+.thr-threshold.thr-missing input { border-color: #d4a017; }
+.thr-threshold.thr-missing .thr-unit { color: #d4a017; opacity: 1; }
+
+/* ---- Durability bar (sheet) ---- */
+.thr-bar {
+  position: relative;
+  height: 1.1rem;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 0, 0, 0.6);
+}
+.thr-bar-fill { position: absolute; inset: 0 auto 0 0; transition: width 0.2s; }
+.thr-bar span {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: var(--font-size-11, 11px);
+  line-height: 1.1rem;
+  font-weight: bold;
+  text-shadow: 0 0 3px #000;
+  color: #fff;
+}
+.thr-integrity { display: flex; flex-direction: column; gap: 0.3rem; }

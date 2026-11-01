@@ -1,93 +1,375 @@
 {
   "solid-wall": {
     "type": "wall",
-    "material": { "id": "stone" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "attenuated", "cover": "full", "ballistic": "blocked" }
+    "material": {
+      "id": "stone"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "blocked",
+      "sound": "attenuated",
+      "cover": "full",
+      "ballistic": "blocked"
+    }
   },
   "partition": {
     "type": "wall",
-    "material": { "id": "wood" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "transmitted", "cover": "full", "ballistic": "conditional" },
-    "interaction": { "destructible": true }
+    "material": {
+      "id": "wood"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "blocked",
+      "sound": "transmitted",
+      "cover": "full",
+      "ballistic": "conditional"
+    },
+    "interaction": {
+      "destructible": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "partial",
+        "ballistic": "passable"
+      }
+    }
   },
   "door": {
     "type": "door",
-    "material": { "id": "wood" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "attenuated", "cover": "full", "ballistic": "conditional" },
-    "interaction": { "door": "door", "playersCanOperate": true, "lockable": true, "destructible": true }
+    "material": {
+      "id": "wood"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "blocked",
+      "sound": "proximity",
+      "cover": "full",
+      "ballistic": "conditional"
+    },
+    "interaction": {
+      "door": "door",
+      "playersCanOperate": true,
+      "lockable": true,
+      "destructible": true
+    },
+    "thresholds": {
+      "sound": 1,
+      "attenuation": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "partial",
+        "ballistic": "passable"
+      }
+    }
   },
   "reinforced-door": {
     "type": "door",
-    "material": { "id": "steel" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "blocked", "cover": "full", "ballistic": "blocked" },
-    "interaction": { "door": "door", "playersCanOperate": true, "lockable": true, "destructible": true }
+    "material": {
+      "id": "steel"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "blocked",
+      "sound": "blocked",
+      "cover": "full",
+      "ballistic": "blocked"
+    },
+    "interaction": {
+      "door": "door",
+      "playersCanOperate": true,
+      "lockable": true,
+      "destructible": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "full",
+        "ballistic": "passable"
+      }
+    }
   },
   "secret-door": {
     "type": "door",
-    "material": { "id": "stone" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "blocked", "sound": "attenuated", "cover": "full", "ballistic": "blocked" },
-    "interaction": { "door": "secret", "playersCanOperate": true, "lockable": true }
+    "material": {
+      "id": "stone"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "blocked",
+      "sound": "proximity",
+      "cover": "full",
+      "ballistic": "blocked"
+    },
+    "interaction": {
+      "door": "secret",
+      "playersCanOperate": true,
+      "lockable": true
+    },
+    "thresholds": {
+      "sound": 0.5,
+      "attenuation": true
+    }
   },
   "gate": {
     "type": "door",
-    "material": { "id": "iron" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "transmitted", "cover": "partial", "ballistic": "conditional" },
-    "interaction": { "door": "door", "playersCanOperate": true, "lockable": true }
+    "material": {
+      "id": "iron"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "transmitted",
+      "cover": "partial",
+      "ballistic": "conditional"
+    },
+    "interaction": {
+      "door": "door",
+      "playersCanOperate": true,
+      "lockable": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "partial",
+        "ballistic": "passable"
+      }
+    }
   },
   "glass-door": {
     "type": "door",
-    "material": { "id": "glass" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "attenuated", "cover": "partial", "ballistic": "blocked" },
-    "interaction": { "door": "door", "playersCanOperate": true, "lockable": true, "destructible": true }
+    "material": {
+      "id": "glass"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "proximity",
+      "cover": "partial",
+      "ballistic": "blocked"
+    },
+    "interaction": {
+      "door": "door",
+      "playersCanOperate": true,
+      "lockable": true,
+      "destructible": true
+    },
+    "thresholds": {
+      "sound": 2,
+      "attenuation": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "partial",
+        "ballistic": "passable"
+      }
+    }
   },
   "frosted-glass-door": {
     "type": "door",
-    "material": { "id": "glass" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "transmitted", "sound": "attenuated", "cover": "partial", "ballistic": "blocked" },
-    "interaction": { "door": "door", "playersCanOperate": true, "lockable": true, "destructible": true }
+    "material": {
+      "id": "glass"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "transmitted",
+      "sound": "proximity",
+      "cover": "partial",
+      "ballistic": "blocked"
+    },
+    "interaction": {
+      "door": "door",
+      "playersCanOperate": true,
+      "lockable": true,
+      "destructible": true
+    },
+    "thresholds": {
+      "sound": 2,
+      "attenuation": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "vision": "transparent",
+        "light": "transmitted",
+        "sound": "transmitted",
+        "cover": "partial",
+        "ballistic": "passable"
+      }
+    }
   },
   "window": {
     "type": "window",
-    "material": { "id": "glass" },
-    "channels": { "movement": "blocked", "vision": "proximity", "light": "transmitted", "sound": "attenuated", "cover": "partial", "ballistic": "blocked" },
-    "thresholds": { "vision": 1 },
-    "stateOverrides": { "damaged": { "vision": "transparent", "sound": "transmitted", "ballistic": "passable" } },
-    "interaction": { "destructible": true }
+    "material": {
+      "id": "glass"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "proximity",
+      "light": "transmitted",
+      "sound": "proximity",
+      "cover": "partial",
+      "ballistic": "blocked"
+    },
+    "thresholds": {
+      "vision": 1,
+      "sound": 2,
+      "attenuation": true
+    },
+    "stateOverrides": {
+      "damaged": {
+        "vision": "transparent",
+        "sound": "transmitted",
+        "ballistic": "passable"
+      }
+    },
+    "interaction": {
+      "destructible": true
+    }
   },
   "curtained-window": {
     "type": "window",
-    "material": { "id": "glass" },
-    "channels": { "movement": "blocked", "vision": "blocked", "light": "limited", "sound": "attenuated", "cover": "partial", "ballistic": "blocked" },
-    "thresholds": { "vision": 1 },
-    "stateOverrides": { "open": { "movement": "blocked", "vision": "proximity", "light": "transmitted", "ballistic": "blocked" } },
-    "interaction": { "playersCanOperate": true }
+    "material": {
+      "id": "glass"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "blocked",
+      "light": "limited",
+      "sound": "attenuated",
+      "cover": "partial",
+      "ballistic": "blocked"
+    },
+    "thresholds": {
+      "vision": 1
+    },
+    "stateOverrides": {
+      "open": {
+        "movement": "blocked",
+        "vision": "proximity",
+        "light": "transmitted",
+        "ballistic": "blocked"
+      }
+    },
+    "interaction": {
+      "playersCanOperate": true
+    }
   },
   "armored-glass": {
     "type": "window",
-    "material": { "id": "reinforced-glass" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "blocked", "cover": "full", "ballistic": "blocked" }
+    "material": {
+      "id": "reinforced-glass"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "blocked",
+      "cover": "full",
+      "ballistic": "blocked"
+    }
   },
   "bars": {
     "type": "bars",
-    "material": { "id": "iron" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "transmitted", "cover": "partial", "ballistic": "conditional" }
+    "material": {
+      "id": "iron"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "transmitted",
+      "cover": "partial",
+      "ballistic": "conditional"
+    }
   },
   "viewing-slot": {
     "type": "opening",
-    "material": { "id": "stone" },
-    "channels": { "movement": "blocked", "vision": "limited", "light": "limited", "sound": "attenuated", "cover": "full", "ballistic": "conditional" }
+    "material": {
+      "id": "stone"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "proximity",
+      "light": "limited",
+      "sound": "attenuated",
+      "cover": "full",
+      "ballistic": "conditional"
+    },
+    "thresholds": {
+      "vision": 0.5
+    }
   },
   "force-field": {
     "type": "field",
-    "material": { "id": "energy" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "blocked", "cover": "full", "ballistic": "blocked" },
-    "stateOverrides": { "damaged": { "movement": "passable", "sound": "transmitted", "cover": "none", "ballistic": "passable" } }
+    "material": {
+      "id": "energy"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "blocked",
+      "cover": "full",
+      "ballistic": "blocked"
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "sound": "transmitted",
+        "cover": "none",
+        "ballistic": "passable"
+      }
+    }
   },
   "barricade": {
     "type": "barricade",
-    "material": { "id": "wood" },
-    "channels": { "movement": "blocked", "vision": "transparent", "light": "transmitted", "sound": "transmitted", "cover": "partial", "ballistic": "conditional" },
-    "stateOverrides": { "damaged": { "movement": "passable", "cover": "none", "ballistic": "passable" } },
-    "interaction": { "destructible": true }
+    "material": {
+      "id": "wood"
+    },
+    "channels": {
+      "movement": "blocked",
+      "vision": "transparent",
+      "light": "transmitted",
+      "sound": "transmitted",
+      "cover": "partial",
+      "ballistic": "conditional"
+    },
+    "stateOverrides": {
+      "damaged": {
+        "movement": "passable",
+        "cover": "none",
+        "ballistic": "passable"
+      }
+    },
+    "interaction": {
+      "destructible": true
+    }
   }
 }

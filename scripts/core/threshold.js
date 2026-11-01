@@ -1,6 +1,7 @@
 import { LOG_PREFIX, MODULE_ID, MODULE_VERSION, SYNC_OPTION } from "./constants.js";
 import { WallConfigTab } from "../ui/wall-config-tab.js";
 import { applyFormToChanges } from "../ui/wall-form.js";
+import { DurabilityBars } from "../canvas/durability-bars.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -21,6 +22,7 @@ class ThresholdFramework {
     this.properties = PropertyEngine;
     this.interactions = new InteractionManager();
     this.syncEnabled = () => game.settings.get(MODULE_ID, "syncNative");
+    this.durabilityBars = new DurabilityBars({ mode: () => game.settings.get(MODULE_ID, "durabilityBars") });
     this.wallConfigTab = new WallConfigTab({ profiles: this.profiles, syncEnabled: this.syncEnabled });
   }
 
@@ -33,6 +35,20 @@ class ThresholdFramework {
       type: Boolean,
       default: true
     });
+    game.settings.register(MODULE_ID, "durabilityBars", {
+      name: "THRESHOLD.Settings.DurabilityBars.Name",
+      hint: "THRESHOLD.Settings.DurabilityBars.Hint",
+      scope: "world",
+      config: true,
+      type: String,
+      choices: {
+        none: "THRESHOLD.Settings.DurabilityBars.None",
+        gm: "THRESHOLD.Settings.DurabilityBars.GM",
+        all: "THRESHOLD.Settings.DurabilityBars.All"
+      },
+      default: "gm",
+      onChange: () => this.durabilityBars.refresh()
+    });
     game.settings.register(MODULE_ID, "debug", {
       name: "THRESHOLD.Settings.Debug.Name",
       hint: "THRESHOLD.Settings.Debug.Hint",
@@ -44,6 +60,13 @@ class ThresholdFramework {
   }
 
   registerHooks() {
+    Hooks.on("canvasReady", () => this.durabilityBars.draw());
+    Hooks.on("canvasTearDown", () => this.durabilityBars.teardown());
+    for (const hook of ["createWall", "updateWall", "deleteWall"]) {
+      Hooks.on(hook, () => this.durabilityBars.scheduleRefresh());
+    }
+    Hooks.on("sightRefresh", () => this.durabilityBars.updateVisibility());
+
     Hooks.on("renderWallConfig", (app, html) => {
       try {
         this.wallConfigTab.inject(app, html);
@@ -91,6 +114,9 @@ class ThresholdFramework {
       properties: this.properties,
       interactions: this.interactions,
       foundry: this.foundry,
+      /** Shortcuts for macros: damage or repair the first selected wall. */
+      damage: (amount, wall = this.foundry.getSelectedWalls()[0], options) => this.barriers.damage(wall, amount, options),
+      repair: (amount, wall = this.foundry.getSelectedWalls()[0]) => this.barriers.repair(wall, amount),
       /** Shortcut: apply a profile to the selected walls. */
       apply: (profile, walls, overrides) => this.barriers.attachMany(profile, walls, overrides)
     });

@@ -47,6 +47,17 @@ export function validateBarrier(data) {
     errors.push(`State "${data.state}" requires interaction.door to be "door" or "secret".`);
   }
 
+  const max = data.material?.durability;
+  if (max !== null && max !== undefined && !(typeof max === "number" && max >= 0)) {
+    errors.push("material.durability must be null or a non-negative number.");
+  }
+  const current = data.integrity?.current;
+  if (current !== null && current !== undefined) {
+    if (typeof current !== "number" || current < 0) errors.push("integrity.current must be null or a non-negative number.");
+    else if (typeof max !== "number") errors.push("integrity.current requires material.durability.");
+    else if (current > max) errors.push(`integrity.current (${current}) exceeds material.durability (${max}).`);
+  }
+
   const fraction = data.geometry?.openFraction;
   if (typeof fraction !== "number" || fraction < 0 || fraction > 1) {
     errors.push("geometry.openFraction must be a number from 0 to 1.");

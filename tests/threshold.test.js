@@ -159,3 +159,69 @@ test("players cannot modify barriers directly", async () => {
 test("unknown profile ids are rejected", async () => {
   await assert.rejects(manager.attach(new MockWall(), "portcullis"), /Unknown barrier profile/);
 });
+
+test("damage lowers durability and breaks the barrier at zero", async () => {
+  const wall = new MockWall();
+  await manager.attach(wall, "door");
+  let barrier = await manager.damage(wall, 12);
+  assert.equal(barrier.integrity.current, 18);
+  assert.equal(barrier.state, "closed");
+  barrier = await manager.damage(wall, 100);
+  assert.equal(barrier.integrity.current, 0);
+  assert.equal(barrier.state, "damaged");
+  assert.equal(wall._source.move, 0, "a broken door can be walked through");
+  assert.equal(wall._source.sight, 0);
+});
+
+test("repair restores durability and closes a broken barrier", async () => {
+  const wall = new MockWall();
+  await manager.attach(wall, "door");
+  await manager.damage(wall, 30);
+  let barrier = await manager.repair(wall, 10);
+  assert.equal(barrier.integrity.current, 10);
+  assert.equal(barrier.state, "closed");
+  assert.equal(wall._source.move, 20);
+  barrier = await manager.repair(wall);
+  assert.equal(barrier.integrity.current, null, "full durability is stored as null");
+});
+
+test("indestructible barriers refuse damage unless forced", async () => {
+  const wall = new MockWall();
+  await manager.attach(wall, "solid-wall");
+  await assert.rejects(manager.damage(wall, 5), /not destructible/);
+  const barrier = await manager.damage(wall, 5, { force: true });
+  assert.equal(barrier.integrity.current, 95);
+});
+
+test("barriers without durability cannot be damaged", async () => {
+  const wall = new MockWall();
+  await manager.attach(wall, "force-field");
+  await assert.rejects(manager.damage(wall, 5, { force: true }), /no durability/);
+});
+
+test("preDamage hook can change or cancel damage", async () => {
+  const handlers = [];
+  globalThis.Hooks = { call: (name, ctx) => { for (const h of handlers) if (h(ctx) === false) return false; return true; }, callAll: () => {} };
+  try {
+    const wall = new MockWall();
+    await manager.attach(wall, "door");
+    handlers.push(ctx => { ctx.amount -= ctx.barrier.material.hardness; });
+    assert.equal((await manager.damage(wall, 10)).integrity.current, 23, "hardness 3 absorbed");
+    handlers.push(() => false);
+    assert.equal((await manager.damage(wall, 10)).integrity.current, 23, "cancelled");
+  } finally {
+    delete globalThis.Hooks;
+  }
+});
+
+test("integrity above the maximum is rejected", () => {
+  const errors = validateBarrier(makeBarrier(profiles.resolve("door"), { integrity: { current: 999 } }));
+  assert.ok(errors.some(e => e.includes("exceeds")));
+});
+
+test("doors let sound through only when listening up close", () => {
+  const data = nativeFor("door");
+  assert.equal(data.sound, 30);
+  assert.equal(data.threshold.sound, 5, "1 grid square at 5 units");
+  assert.equal(data.threshold.attenuation, true);
+});

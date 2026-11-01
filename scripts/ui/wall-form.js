@@ -71,7 +71,15 @@ export function barrierFromForm(ui, existing, profiles) {
   }
   if (ui.material && "durability" in ui.material) material.durability = toNumber(ui.material.durability);
 
-  const layer = { profile: profileId, state, channels, thresholds, interaction, material };
+  // Current durability: empty means full; values at or above the maximum are stored as full.
+  const integrity = {};
+  if (ui.integrity && "current" in ui.integrity) {
+    const max = "durability" in material ? material.durability : base.material?.durability ?? null;
+    const current = toNumber(ui.integrity.current);
+    integrity.current = typeof max !== "number" || current === null || current >= max ? null : Math.max(0, current);
+  }
+
+  const layer = { profile: profileId, state, channels, thresholds, interaction, material, integrity };
   // For each state the tab sends, its selects replace the override entirely (an empty
   // select means "no override"). States the tab does not show keep the base's override.
   if (ui.stateOverrides && typeof ui.stateOverrides === "object") {
