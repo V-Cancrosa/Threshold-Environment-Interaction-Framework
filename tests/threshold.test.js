@@ -113,7 +113,7 @@ test("re-attaching replaces the profile without leaking old overrides", async ()
   await manager.attach(wall, "bars");
   const barrier = wall.getFlag("threshold", "barrier");
   assert.equal(barrier.profile, "bars");
-  assert.deepEqual(barrier.stateOverrides, {});
+  assert.ok(Object.values(barrier.stateOverrides).every(v => v === null));
   // The backup still describes the wall as it was before Threshold touched it.
   assert.equal(wall.getFlag("threshold", "nativeBackup").sight, SENSE.NORMAL);
 });

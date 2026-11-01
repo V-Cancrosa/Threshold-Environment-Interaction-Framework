@@ -1,4 +1,6 @@
 import { LOG_PREFIX, MODULE_ID, MODULE_VERSION, SYNC_OPTION } from "./constants.js";
+import { WallConfigTab } from "../ui/wall-config-tab.js";
+import { applyFormToChanges } from "../ui/wall-form.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -13,11 +15,13 @@ class ThresholdFramework {
     this.barriers = new BarrierManager({
       profiles: this.profiles,
       adapter: this.foundry,
-      syncEnabled: () => game.settings.get(MODULE_ID, "syncNative")
+      syncEnabled: () => this.syncEnabled()
     });
     this.geometry = GeometryEngine;
     this.properties = PropertyEngine;
     this.interactions = new InteractionManager();
+    this.syncEnabled = () => game.settings.get(MODULE_ID, "syncNative");
+    this.wallConfigTab = new WallConfigTab({ profiles: this.profiles, syncEnabled: this.syncEnabled });
   }
 
   registerSettings() {
@@ -40,6 +44,28 @@ class ThresholdFramework {
   }
 
   registerHooks() {
+    Hooks.on("renderWallConfig", (app, html) => {
+      try {
+        this.wallConfigTab.inject(app, html);
+      } catch (err) {
+        console.error(`${LOG_PREFIX} Could not add the Threshold tab to the wall sheet.`, err);
+      }
+    });
+
+    // The wall sheet submits the tab's fields with its own update; rewrite that update
+    // so the barrier and the native fields land together.
+    Hooks.on("preUpdateWall", (wall, changes, options) => {
+      if (options?.[SYNC_OPTION]) return;
+      try {
+        if (applyFormToChanges(wall, changes, { profiles: this.profiles, adapter: this.foundry, syncEnabled: this.syncEnabled })) {
+          options[SYNC_OPTION] = true;
+        }
+      } catch (err) {
+        ui.notifications?.error(game.i18n.format("THRESHOLD.Error.Invalid", { error: err.message }));
+        return false;
+      }
+    });
+
     Hooks.on("updateWall", (wall, changes, options) => {
       if (options?.[SYNC_OPTION] || !("ds" in changes)) return;
       if (!game.users?.activeGM?.isSelf) return;

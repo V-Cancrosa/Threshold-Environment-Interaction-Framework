@@ -21,6 +21,87 @@
       "cloth": "Cloth",
       "polymer": "Polymer",
       "energy": "Energy Field"
+    },
+    "Config": {
+      "Tab": "Threshold",
+      "WallTab": "Wall",
+      "Profile": "Barrier profile",
+      "ProfileNone": "— None (plain Foundry wall) —",
+      "ProfileHint": "Choosing a profile fills in the settings below. Adjust any of them for this wall.",
+      "StateLegend": "Door and state",
+      "Door": "Door control",
+      "State": "State",
+      "Channels": "What gets through",
+      "ChannelsHint": "Base values for the closed barrier. Open, ajar and damaged states adjust them automatically.",
+      "Thresholds": "Proximity range",
+      "ThresholdsHint": "In grid squares. Used only by channels set to Proximity or Distance.",
+      "Attenuation": "Attenuate",
+      "AttenuationHint": "Light and sound passing the proximity range fade gradually.",
+      "MaterialLegend": "Material and interaction",
+      "Material": "Material",
+      "Durability": "Durability",
+      "playersCanOperate": "Players can operate",
+      "lockable": "Lockable",
+      "destructible": "Destructible",
+      "Preview": "In effect now ({state})",
+      "PreviewNone": "No profile: this is a plain Foundry wall.",
+      "ManagedNotice": "Movement, sight, light, sound and door settings are controlled by the Threshold profile “{profile}”. Change them on the Threshold tab.",
+      "RemoveNotice": "Saving will remove the Threshold profile and restore this wall's original settings.",
+      "MetadataOnly": "Applying profiles to native walls is turned off in module settings: the profile is stored as data only."
+    },
+    "Error": {
+      "Invalid": "Threshold: the wall was not saved. {error}"
+    },
+    "Channel": {
+      "movement": "Movement",
+      "vision": "Vision",
+      "light": "Light",
+      "sound": "Sound",
+      "cover": "Cover",
+      "ballistic": "Projectiles"
+    },
+    "Value": {
+      "blocked": "Blocked",
+      "passable": "Passable",
+      "limited": "Limited",
+      "proximity": "Proximity",
+      "distance": "Distance",
+      "transparent": "Transparent",
+      "transmitted": "Passes through",
+      "attenuated": "Muffled",
+      "none": "None",
+      "partial": "Partial",
+      "full": "Full",
+      "conditional": "Conditional"
+    },
+    "State": {
+      "closed": "Closed",
+      "open": "Open",
+      "ajar": "Ajar",
+      "locked": "Locked",
+      "damaged": "Damaged"
+    },
+    "DoorMode": {
+      "none": "None",
+      "door": "Door",
+      "secret": "Secret door"
+    },
+    "Profile": {
+      "solid-wall": "Solid wall",
+      "partition": "Partition wall",
+      "door": "Door",
+      "reinforced-door": "Reinforced door",
+      "secret-door": "Secret door",
+      "gate": "Gate (bars)",
+      "glass-door": "Glass door",
+      "frosted-glass-door": "Frosted glass door",
+      "window": "Window",
+      "curtained-window": "Curtained window",
+      "armored-glass": "Armored glass",
+      "bars": "Bars",
+      "viewing-slot": "Viewing slot / arrow slit",
+      "force-field": "Force field",
+      "barricade": "Barricade"
     }
   }
 }

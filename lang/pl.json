@@ -21,6 +21,87 @@
       "cloth": "Tkanina",
       "polymer": "Tworzywo",
       "energy": "Pole energetyczne"
+    },
+    "Config": {
+      "Tab": "Threshold",
+      "WallTab": "Ściana",
+      "Profile": "Profil przeszkody",
+      "ProfileNone": "— Brak (zwykła ściana Foundry) —",
+      "ProfileHint": "Wybranie profilu wypełnia poniższe ustawienia. Każde z nich możesz dostosować dla tej ściany.",
+      "StateLegend": "Drzwi i stan",
+      "Door": "Sterowanie drzwiami",
+      "State": "Stan",
+      "Channels": "Co przechodzi przez przeszkodę",
+      "ChannelsHint": "Wartości bazowe dla zamkniętej przeszkody. Stany otwarte, uchylone i uszkodzone zmieniają je automatycznie.",
+      "Thresholds": "Zasięg bliskości",
+      "ThresholdsHint": "W polach siatki. Używany tylko przez kanały ustawione na Bliskość lub Odległość.",
+      "Attenuation": "Wygaszanie",
+      "AttenuationHint": "Światło i dźwięk za progiem bliskości słabną stopniowo.",
+      "MaterialLegend": "Materiał i interakcje",
+      "Material": "Materiał",
+      "Durability": "Wytrzymałość",
+      "playersCanOperate": "Gracze mogą używać",
+      "lockable": "Można zamknąć na klucz",
+      "destructible": "Można zniszczyć",
+      "Preview": "Obecnie obowiązuje ({state})",
+      "PreviewNone": "Brak profilu: to zwykła ściana Foundry.",
+      "ManagedNotice": "Ruch, wzrok, światło, dźwięk i drzwi kontroluje profil Threshold „{profile}”. Zmieniaj je w zakładce Threshold.",
+      "RemoveNotice": "Zapisanie usunie profil Threshold i przywróci pierwotne ustawienia tej ściany.",
+      "MetadataOnly": "Stosowanie profili do natywnych ścian jest wyłączone w ustawieniach modułu: profil jest zapisywany wyłącznie jako dane."
+    },
+    "Error": {
+      "Invalid": "Threshold: ściana nie została zapisana. {error}"
+    },
+    "Channel": {
+      "movement": "Ruch",
+      "vision": "Wzrok",
+      "light": "Światło",
+      "sound": "Dźwięk",
+      "cover": "Osłona",
+      "ballistic": "Pociski"
+    },
+    "Value": {
+      "blocked": "Blokuje",
+      "passable": "Przepuszcza",
+      "limited": "Ograniczony",
+      "proximity": "Bliskość",
+      "distance": "Odległość",
+      "transparent": "Przezroczyste",
+      "transmitted": "Przechodzi",
+      "attenuated": "Tłumiony",
+      "none": "Brak",
+      "partial": "Częściowa",
+      "full": "Pełna",
+      "conditional": "Warunkowo"
+    },
+    "State": {
+      "closed": "Zamknięte",
+      "open": "Otwarte",
+      "ajar": "Uchylone",
+      "locked": "Zamknięte na klucz",
+      "damaged": "Uszkodzone"
+    },
+    "DoorMode": {
+      "none": "Brak",
+      "door": "Drzwi",
+      "secret": "Ukryte drzwi"
+    },
+    "Profile": {
+      "solid-wall": "Lita ściana",
+      "partition": "Ścianka działowa",
+      "door": "Drzwi",
+      "reinforced-door": "Drzwi wzmocnione",
+      "secret-door": "Ukryte drzwi",
+      "gate": "Furtka (kraty)",
+      "glass-door": "Drzwi szklane",
+      "frosted-glass-door": "Drzwi z matowym szkłem",
+      "window": "Okno",
+      "curtained-window": "Okno z zasłonami",
+      "armored-glass": "Szkło pancerne",
+      "bars": "Kraty",
+      "viewing-slot": "Wizjer / strzelnica",
+      "force-field": "Pole siłowe",
+      "barricade": "Barykada"
     }
   }
 }

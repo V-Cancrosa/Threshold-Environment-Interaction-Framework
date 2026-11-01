@@ -10,6 +10,7 @@ function checkChannels(channels, path, errors, { partial = false } = {}) {
       if (!partial) errors.push(`Missing channel: ${path}.${channel}`);
       continue;
     }
+    if (partial && channels[channel] === null) continue;
     if (!CHANNEL_VALUES[channel].includes(channels[channel])) {
       errors.push(`Invalid value for ${path}.${channel}: ${channels[channel]} (allowed: ${CHANNEL_VALUES[channel].join(", ")})`);
     }
@@ -29,6 +30,7 @@ export function validateBarrier(data) {
   checkChannels(data.channels, "channels", errors);
   for (const [state, override] of Object.entries(data.stateOverrides ?? {})) {
     if (!STATES.includes(state)) errors.push(`Invalid state in stateOverrides: ${state}`);
+    if (override === null) continue;
     checkChannels(override, `stateOverrides.${state}`, errors, { partial: true });
   }
 

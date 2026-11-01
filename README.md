@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.2.0-alpha.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** alpha, console API only (no UI yet)
+**Version:** 0.4.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -18,7 +18,16 @@ https://github.com/V-Cancrosa/Threshold-Environment-Interaction-Framework/releas
 
 Enable **Threshold — Environment Interaction Framework** in your world's Manage Modules.
 
-## Quick start
+## Configuring a wall
+
+Double-click a wall (or right-click → configure) as a GM. The wall sheet gets two tabs:
+
+- **Wall:** Foundry's own settings. While a Threshold profile is active, the movement, sight, light, sound and door fields are locked, and a notice says which profile controls them.
+- **Threshold:** pick a **barrier profile**, then adjust anything for this particular wall: door control, state, each channel, proximity range (in grid squares), material, durability and interaction flags. A live preview shows what the barrier lets through in the chosen state.
+
+Click **Update Wall** to save the profile and the matching native settings in one update. Set the profile back to **None** and save to restore the wall's original settings.
+
+## Console API
 
 As a GM, select one or more walls, open the browser console (F12) and run:
 
@@ -104,7 +113,8 @@ Barrier data is stored on the wall at `flags.threshold.barrier`. Every Threshold
 
 ## Not implemented yet
 
-- Wall configuration sheet tab and a dedicated drawing tool (next milestone).
+- Editing per-state overrides (`stateOverrides`) in the sheet. They come from the profile or the API for now.
+- A dedicated drawing tool and a quick profile switcher on the canvas.
 - Player interaction with non-door barriers (curtains, etc.) via a GM-validated socket request.
 - Segment openings (e.g. a door with a viewing slot as one object).
 - Door leaf rotation on the canvas and opening by a given angle.

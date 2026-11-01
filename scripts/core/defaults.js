@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION } from "./constants.js";
+import { CHANNELS, SCHEMA_VERSION, STATES } from "./constants.js";
 
 export const DEFAULT_BARRIER = Object.freeze({
   schemaVersion: SCHEMA_VERSION,
@@ -50,11 +50,28 @@ export const DEFAULT_BARRIER = Object.freeze({
   }
 });
 
+/**
+ * Give stateOverrides a fixed shape: every state present, every channel present,
+ * null meaning "no override". Barriers are stored on documents by deep merge, so a
+ * fixed shape is what guarantees a new profile fully replaces an old one.
+ */
+export function canonicalize(barrier) {
+  const out = foundry.utils.deepClone(barrier);
+  const overrides = {};
+  for (const state of STATES) {
+    const override = out.stateOverrides?.[state];
+    const hasValues = override && CHANNELS.some(c => override[c] != null);
+    overrides[state] = hasValues ? Object.fromEntries(CHANNELS.map(c => [c, override[c] ?? null])) : null;
+  }
+  out.stateOverrides = overrides;
+  return out;
+}
+
 export function makeBarrier(...layers) {
   let barrier = foundry.utils.deepClone(DEFAULT_BARRIER);
   for (const layer of layers) {
     if (!layer) continue;
     barrier = foundry.utils.mergeObject(barrier, layer, { inplace: false, insertKeys: true, overwrite: true });
   }
-  return barrier;
+  return canonicalize(barrier);
 }

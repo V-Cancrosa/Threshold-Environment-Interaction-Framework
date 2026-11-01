@@ -23,8 +23,16 @@ function setProperty(object, path, value) {
   target[last] = isObject(value) && isObject(target[last]) ? mergeObject(target[last], value) : structuredClone(value);
 }
 
+function setPlain(object, path, value) {
+  const parts = path.split(".");
+  const last = parts.pop();
+  let target = object;
+  for (const part of parts) target = target[part] ??= {};
+  target[last] = value;
+}
+
 export function installFoundryMock({ isGM = true } = {}) {
-  globalThis.foundry = { utils: { deepClone: v => structuredClone(v), mergeObject } };
+  globalThis.foundry = { utils: { deepClone: v => structuredClone(v), mergeObject, setProperty: (o, k, v) => { setPlain(o, k, v); return true; } } };
   globalThis.game = { user: { isGM } };
   globalThis.canvas = { scene: { grid: { distance: 5 } }, walls: { controlled: [] } };
 }

@@ -1,1 +1,64 @@
-/* Threshold — UI styles will be added with the first application sheet. */
+/* Threshold — wall configuration tab */
+
+.thr-tabs.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  border-bottom: 1px solid var(--color-border, rgba(127, 127, 127, 0.4));
+}
+.thr-tabs.tabs a {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  opacity: 0.75;
+}
+.thr-tabs.tabs a.active {
+  opacity: 1;
+  border-bottom-color: var(--color-warm-1, #ee9b3a);
+  font-weight: bold;
+}
+
+[data-thr-tab].thr-wall-tab,
+[data-thr-tab].thr-panel { display: none; }
+[data-thr-tab].thr-wall-tab.active,
+[data-thr-tab].thr-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.thr-panel .thr-body { display: flex; flex-direction: column; gap: 0.5rem; }
+.thr-panel .thr-body.thr-disabled { opacity: 0.45; }
+.thr-panel .thr-inline { display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
+.thr-panel .thr-inline input[type="number"] { width: 4rem; }
+.thr-panel .thr-checks { flex-wrap: wrap; gap: 0.75rem; }
+
+.thr-preview ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.thr-preview-title { margin: 0.25rem 0; font-size: var(--font-size-12, 12px); opacity: 0.8; }
+.thr-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border-left: 3px solid;
+  background: rgba(127, 127, 127, 0.12);
+  font-size: var(--font-size-12, 12px);
+}
+.thr-chip span { opacity: 0.75; }
+.thr-chip.thr-blocked { border-color: #c0392b; }
+.thr-chip.thr-partial { border-color: #d4a017; }
+.thr-chip.thr-open { border-color: #27ae60; }
+.thr-error { color: #c0392b; }
+
+.thr-wall-tab .thr-managed { opacity: 0.5; }
+.thr-managed-notice { margin: 0; padding: 0.4rem 0.6rem; border-radius: 4px; }
+.thr-managed-notice[hidden] { display: none; }

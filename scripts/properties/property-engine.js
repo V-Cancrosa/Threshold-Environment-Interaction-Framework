@@ -15,8 +15,8 @@ export class PropertyEngine {
   static effectiveChannels(barrier) {
     if (!barrier?.enabled) return { ...OPEN_CHANNELS };
     const base = { ...barrier.channels };
-    const override = barrier.stateOverrides?.[barrier.state];
-    if (override) return { ...base, ...override };
+    const override = Object.entries(barrier.stateOverrides?.[barrier.state] ?? {}).filter(([, v]) => v != null);
+    if (override.length) return { ...base, ...Object.fromEntries(override) };
     if (barrier.state === "open") return { ...OPEN_CHANNELS };
     if (barrier.state === "ajar") {
       return Object.fromEntries(CHANNELS.map(c => [c, this.loosest(c, base[c], AJAR_CHANNELS[c])]));

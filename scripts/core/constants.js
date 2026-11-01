@@ -1,5 +1,5 @@
 export const MODULE_ID = "threshold";
-export const MODULE_VERSION = "0.2.0-alpha.1";
+export const MODULE_VERSION = "0.4.0";
 export const LOG_PREFIX = "[THR]";
 
 export const FLAG_KEY = "barrier";

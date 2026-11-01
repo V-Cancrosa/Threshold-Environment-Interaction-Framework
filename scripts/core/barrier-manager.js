@@ -1,5 +1,5 @@
 import { BACKUP_FLAG_KEY, FLAG_KEY, LOG_PREFIX, MODULE_ID, STATES, SYNC_OPTION } from "./constants.js";
-import { makeBarrier } from "./defaults.js";
+import { canonicalize, makeBarrier } from "./defaults.js";
 import { validateBarrier } from "./validator.js";
 
 /**
@@ -47,9 +47,6 @@ export class BarrierManager {
     const barrier = makeBarrier(profileData, data, overrides);
     this.#validate(barrier);
 
-    const hadBarrier = this.has(document);
-    // Replace rather than deep-merge, so keys from a previous profile cannot leak in.
-    if (hadBarrier) await document.unsetFlag(MODULE_ID, FLAG_KEY);
     const changes = { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier) };
     if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) {
       changes[`flags.${MODULE_ID}.${BACKUP_FLAG_KEY}`] = this.adapter.snapshot(document);
@@ -68,9 +65,7 @@ export class BarrierManager {
   async update(document, changes = {}) {
     this.#assertGM();
     const current = this.#require(document);
-    const next = foundry.utils.mergeObject(foundry.utils.deepClone(current), changes, {
-      inplace: false, insertKeys: true, overwrite: true
-    });
+    const next = makeBarrier(current, changes);
     this.#validate(next);
     await this.#write(document, next);
     return next;
@@ -107,7 +102,7 @@ export class BarrierManager {
     if (!current || !current.enabled) return;
     const state = this.adapter.barrierStateFromDoor(document.ds);
     if (state === current.state) return;
-    const next = { ...foundry.utils.deepClone(current), state };
+    const next = canonicalize({ ...current, state });
     try {
       await this.#write(document, next);
     } catch (err) {
