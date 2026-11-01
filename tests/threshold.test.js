@@ -50,7 +50,7 @@ test("a gate left ajar stays see-through", () => {
 });
 
 test("a wooden door left ajar gives limited sight and passes sound", () => {
-  const data = nativeFor("door", { state: "ajar" });
+  const data = nativeFor("door", { state: "ajar", geometry: { mode: "native-segment" } });
   assert.equal(data.ds, 0);
   assert.equal(data.sight, SENSE.LIMITED);
   assert.equal(data.sound, SENSE.NONE);
@@ -133,7 +133,7 @@ test("remove restores the original native wall", async () => {
 
 test("closing an ajar door with the native control restores full blocking", async () => {
   const wall = new MockWall();
-  await manager.attach(wall, "door", { state: "ajar" });
+  await manager.attach(wall, "door", { state: "ajar", geometry: { mode: "native-segment" } });
   assert.equal(wall._source.sight, SENSE.LIMITED);
   // Player opens the door with the canvas door control, then closes it.
   wall._source.ds = 1;

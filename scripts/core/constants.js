@@ -1,5 +1,5 @@
 export const MODULE_ID = "threshold";
-export const MODULE_VERSION = "0.7.1";
+export const MODULE_VERSION = "0.8.0";
 export const LOG_PREFIX = "[THR]";
 
 export const FLAG_KEY = "barrier";
@@ -58,3 +58,6 @@ export const DOOR_MODES = Object.freeze(["none", "door", "secret"]);
 
 /** Native door animation types Threshold offers (CONFIG.Wall.animationTypes keys). */
 export const DOOR_ANIMATIONS = Object.freeze(["swing", "slide", "ascend", "descend"]);
+export const GEOMETRY_MODES = Object.freeze(["native-segment", "physical"]);
+/** Flag on a movement-only helper wall, holding the id of the door it belongs to. */
+export const HELPER_FLAG_KEY = "helperOf";

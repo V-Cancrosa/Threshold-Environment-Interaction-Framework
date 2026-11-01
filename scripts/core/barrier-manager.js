@@ -2,6 +2,7 @@ import { BACKUP_FLAG_KEY, FLAG_KEY, LOG_PREFIX, MODULE_ID, STATES, SYNC_OPTION }
 import { canonicalize, makeBarrier } from "./defaults.js";
 import { validateBarrier } from "./validator.js";
 import { PropertyEngine } from "../properties/property-engine.js";
+import { GeometryEngine } from "../geometry/geometry-engine.js";
 
 const callHook = (name, ...args) => globalThis.Hooks?.call?.(name, ...args);
 const callAllHook = (name, ...args) => globalThis.Hooks?.callAll?.(name, ...args);
@@ -52,10 +53,10 @@ export class BarrierManager {
     this.#validate(barrier);
 
     const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY) ?? this.adapter.snapshot(document);
-    const changes = { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier, backup) };
+    const { changes, barrier: stored } = this.compose(document, barrier, backup);
     if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) changes[`flags.${MODULE_ID}.${BACKUP_FLAG_KEY}`] = backup;
     await document.update(changes, { [SYNC_OPTION]: true });
-    return barrier;
+    return stored;
   }
 
   /** Attach the same profile to many walls (defaults to the selected ones). */
@@ -70,8 +71,17 @@ export class BarrierManager {
     const current = this.#require(document);
     const next = makeBarrier(current, changes);
     this.#validate(next);
-    await this.#write(document, next);
-    return next;
+    return this.#write(document, next);
+  }
+
+  /**
+   * Stand a door ajar. With physical geometry the leaf really moves.
+   * @param {number} [openFraction]  0–1 (1 = 90° or fully slid back); keeps the stored value if omitted
+   */
+  async setAjar(document, openFraction) {
+    const changes = { state: "ajar" };
+    if (openFraction !== undefined) changes.geometry = { openFraction: GeometryEngine.clampOpenFraction(openFraction) };
+    return this.update(document, changes);
   }
 
   async setState(document, state) {
@@ -146,7 +156,11 @@ export class BarrierManager {
   async remove(document) {
     this.#assertGM();
     const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY);
-    if (backup) await document.update(backup, { [SYNC_OPTION]: true });
+    const restore = { ...(backup ?? {}) };
+    // A moved door leaf goes back to its closed position.
+    const closedC = this.get(document)?.geometry?.closedC;
+    if (closedC) restore.c = [...closedC];
+    if (Object.keys(restore).length) await document.update(restore, { [SYNC_OPTION]: true });
     await document.unsetFlag(MODULE_ID, FLAG_KEY);
     await document.unsetFlag(MODULE_ID, BACKUP_FLAG_KEY);
   }
@@ -170,15 +184,44 @@ export class BarrierManager {
     }
   }
 
-  async #write(document, barrier) {
-    await document.update(
-      { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier, document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) },
-      { [SYNC_OPTION]: true }
-    );
+  /**
+   * Someone moved a physical door's endpoints by hand. Take the new position as the
+   * closed position; a door that was ajar is closed, since its leaf was just replaced.
+   * Must only run on one client: the active GM.
+   */
+  async handleManualMove(document) {
+    const current = this.get(document);
+    if (!current?.geometry?.closedC) return;
+    const next = canonicalize({
+      ...current,
+      state: current.state === "ajar" ? "closed" : current.state,
+      geometry: { ...current.geometry, closedC: [...document.c] }
+    });
+    try {
+      await this.#write(document, next);
+    } catch (err) {
+      console.error(`${LOG_PREFIX} Failed to adopt the new position of wall ${document.id}.`, err);
+    }
   }
 
-  #nativeChanges(barrier, native = null) {
-    return this.syncEnabled() ? this.adapter.toWallData(barrier, undefined, native) : {};
+  /**
+   * Everything one write needs: the stored barrier (with its geometry settled against
+   * the wall) and, when native sync is on, the native fields and coordinates.
+   */
+  compose(document, barrier, native = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) {
+    const { barrier: settled, c } = GeometryEngine.resolve(barrier, document.c ?? document._source?.c);
+    const changes = { [`flags.${MODULE_ID}.${FLAG_KEY}`]: settled };
+    if (this.syncEnabled()) {
+      Object.assign(changes, this.adapter.toWallData(settled, undefined, native));
+      if (c) changes.c = c;
+    }
+    return { changes, barrier: settled };
+  }
+
+  async #write(document, barrier) {
+    const { changes, barrier: stored } = this.compose(document, barrier);
+    await document.update(changes, { [SYNC_OPTION]: true });
+    return stored;
   }
 
   #require(document) {

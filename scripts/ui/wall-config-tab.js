@@ -1,6 +1,8 @@
 import { CHANNELS, CHANNEL_VALUES, DOOR_ANIMATIONS, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
 import { makeBarrier } from "../core/defaults.js";
 import { PropertyEngine } from "../properties/property-engine.js";
+import { GeometryEngine } from "../geometry/geometry-engine.js";
+import { HelperWalls } from "../core/helper-walls.js";
 import { UI_PREFIX, barrierFromForm } from "./wall-form.js";
 import { integrityColorNumber } from "../canvas/durability-bars.js";
 import { BUNDLED_TEXTURES, browseImage } from "./textures.js";
@@ -92,7 +94,20 @@ export class WallConfigTab {
     if (!root || !document || !game.user?.isGM) return;
     const content = root.querySelector(".window-content") ?? root;
     const form = root.tagName === "FORM" ? content : content.querySelector("form") ?? content;
+    if (HelperWalls.isHelper(document)) {
+      if (!form.querySelector(".thr-helper-notice")) {
+        const note = window.document.createElement("p");
+        note.className = "thr-helper-notice notification warning";
+        note.textContent = t("THRESHOLD.Config.HelperNotice");
+        form.prepend(note);
+      }
+      return;
+    }
     form.classList.add("thr-tabbed");
+    const stored = document.getFlag(MODULE_ID, FLAG_KEY);
+    const [x0, y0, x1, y1] = stored?.geometry?.closedC ?? document.c ?? [0, 0, 0, 0];
+    const gridSize = globalThis.canvas?.grid?.size ?? globalThis.canvas?.scene?.grid?.size ?? 100;
+    this.wallLength = Math.hypot(x1 - x0, y1 - y0) / gridSize;
 
     // Undo a previous injection, then build afresh from the current document.
     form.querySelector(":scope > .thr-tabs")?.remove();
@@ -186,6 +201,9 @@ export class WallConfigTab {
         this.refresh(panel, form, notice, existing);
       }
     });
+    panel.addEventListener("input", event => {
+      if (event.target.type === "range") this.refresh(panel, form, notice, existing);
+    });
     panel.addEventListener("change", event => {
       const name = event.target.name ?? "";
       if (name === `${UI_PREFIX}.profile`) this.fillFromProfile(panel, event.target.value, existing);
@@ -247,6 +265,7 @@ export class WallConfigTab {
           <p class="hint">${esc(t("THRESHOLD.Config.ThresholdsHint"))}</p>
           ${check("thresholds.attenuation", t("THRESHOLD.Config.Attenuation"))}
           <p class="hint">${esc(t("THRESHOLD.Config.AttenuationHint"))}</p>`)}
+        ${section("geometry", "fa-solid fa-door-open", t("THRESHOLD.Config.GeometryLegend"), `<span class="thr-note" data-thr-geometry-summary></span>`, this.renderGeometry(b))}
         ${section("states", "fa-solid fa-code-branch", t("THRESHOLD.Config.OverridesLegend"), `<span class="thr-badge" data-thr-override-count></span>`, this.renderOverrides(b))}
         ${section("appearance", "fa-solid fa-palette", t("THRESHOLD.Config.AppearanceLegend"), `<img class="thr-summary-texture" data-thr-texture-summary alt="">`, this.renderAppearance(b))}
         ${section("material", "fa-solid fa-cubes", t("THRESHOLD.Config.MaterialLegend"), `<span class="thr-note" data-thr-material-summary></span>`, `
@@ -262,6 +281,73 @@ export class WallConfigTab {
             ${check("interaction.destructible", t("THRESHOLD.Config.destructible"))}
           </div>`)}
       </div>`;
+  }
+
+  renderGeometry(b) {
+    const P = `${UI_PREFIX}.geometry`;
+    const g = b.geometry ?? {};
+    const percent = Math.round((g.openFraction ?? 0.33) * 100);
+    return `
+      <label class="thr-check"><input type="checkbox" name="${P}.physical"${g.mode === "physical" ? " checked" : ""}> ${esc(t("THRESHOLD.Config.Physical"))}</label>
+      <p class="hint">${esc(t("THRESHOLD.Config.PhysicalHint"))}</p>
+      <div class="thr-geometry-body">
+        <div class="thr-schematic" data-thr-schematic></div>
+        ${field(t("THRESHOLD.Config.OpenAmount"), `<div class="thr-range"><input type="range" min="0" max="100" step="5" name="${P}.openPercent" value="${percent}"><span data-thr-open-label></span></div>`)}
+        <div class="thr-grid thr-grid-2">
+          ${field(t("THRESHOLD.Config.Hinge"), `<select name="${P}.hinge">${["a", "b"].map(h => option(h, t(`THRESHOLD.Config.HingeEnd.${h}`), g.hinge ?? "a")).join("")}</select>`)}
+          <div data-thr-swing-only>${field(t("THRESHOLD.Config.Swing"), `<select name="${P}.swing">${[1, -1].map(v => option(String(v), t(`THRESHOLD.Config.SwingDir.${v === 1 ? "cw" : "ccw"}`), String(g.swing ?? 1))).join("")}</select>`)}</div>
+        </div>
+        ${field(t("THRESHOLD.Config.PassableGap"), `<input type="number" min="0" step="0.25" name="${P}.passableGap" value="${esc(g.passableGap ?? 1)}">`)}
+        <p class="hint" data-thr-gap-status></p>
+      </div>`;
+  }
+
+  /** Schematic of the door: closed position dashed, leaf when ajar, gap and helper wall. */
+  refreshGeometry(panel, ui, isDoor) {
+    const details = panel.querySelector('details[data-thr-section="geometry"]');
+    details.hidden = !isDoor;
+    if (!isDoor) return;
+    const g = ui.geometry ?? {};
+    const physical = Boolean(g.physical);
+    const fraction = Math.min(1, Math.max(0, Number(g.openPercent ?? 33) / 100));
+    const motion = ui.appearance?.animation === "slide" ? "slide" : "swing";
+    const hinge = g.hinge === "b" ? "b" : "a";
+    const swing = Number(g.swing) === -1 ? -1 : 1;
+    panel.querySelector(".thr-geometry-body").classList.toggle("thr-disabled", !physical);
+    panel.querySelector("[data-thr-swing-only]").hidden = motion === "slide";
+
+    const label = motion === "slide"
+      ? game.i18n.format("THRESHOLD.Config.OpenSlide", { percent: Math.round(fraction * 100) })
+      : game.i18n.format("THRESHOLD.Config.OpenSwing", { degrees: Math.round(GeometryEngine.swingAngle(fraction)) });
+    panel.querySelector("[data-thr-open-label]").textContent = label;
+    panel.querySelector("[data-thr-geometry-summary]").textContent = physical ? label : t("THRESHOLD.Config.Approximate");
+
+    // Gap in grid squares for this wall, and whether tokens can pass.
+    const length = this.wallLength || 1;
+    const gap = GeometryEngine.gapWidth([0, 0, length, 0], { motion, openFraction: fraction });
+    const needed = Number(g.passableGap);
+    const passable = Number.isFinite(needed) && gap >= needed;
+    panel.querySelector("[data-thr-gap-status]").textContent = game.i18n.format(
+      passable ? "THRESHOLD.Config.GapPassable" : "THRESHOLD.Config.GapBlocked",
+      { gap: gap.toFixed(2), length: +length.toFixed(2) }
+    );
+
+    // Draw in a 240×190 box: an 85 px door on a wall at y = 95, so a 90° swing fits either way.
+    const closed = [77, 95, 162, 95];
+    const leaf = GeometryEngine.leafCoords(closed, { hinge, swing, motion, openFraction: fraction });
+    const [hx, hy] = hinge === "a" ? [closed[0], closed[1]] : [closed[2], closed[3]];
+    const helper = !passable;
+    panel.querySelector("[data-thr-schematic]").innerHTML = `
+      <svg viewBox="0 0 240 190" role="img" aria-label="${esc(label)}">
+        <line x1="10" y1="95" x2="${closed[0] - 4}" y2="95" class="thr-s-wall"/><line x1="${closed[2] + 4}" y1="95" x2="230" y2="95" class="thr-s-wall"/>
+        <line x1="${closed[0]}" y1="95" x2="${closed[2]}" y2="95" class="${helper ? "thr-s-helper" : "thr-s-closed"}"/>
+        <line x1="${leaf[0]}" y1="${leaf[1]}" x2="${leaf[2]}" y2="${leaf[3]}" class="thr-s-leaf"/>
+        <circle cx="${hx}" cy="${hy}" r="4" class="thr-s-hinge"/>
+        <text x="${closed[0] - 8}" y="${swing === 1 ? 84 : 112}" class="thr-s-label" text-anchor="end">A</text>
+        <text x="${closed[2] + 8}" y="${swing === 1 ? 84 : 112}" class="thr-s-label">B</text>
+      </svg>
+      <p class="thr-legend"><span class="thr-s-key thr-s-leaf"></span>${esc(t("THRESHOLD.Config.LegendLeaf"))}
+        <span class="thr-s-key ${helper ? "thr-s-helper" : "thr-s-closed"}"></span>${esc(t(helper ? "THRESHOLD.Config.LegendHelper" : "THRESHOLD.Config.LegendClosed"))}</p>`;
   }
 
   textureInput(name, value) {
@@ -425,6 +511,12 @@ export class WallConfigTab {
     this.setField(panel, "appearance.double", a.double);
     this.setField(panel, "appearance.thickness", a.thickness ?? 0.2);
     this.setField(panel, "appearance.repeat", a.repeat !== false);
+    const g = b.geometry ?? {};
+    this.setField(panel, "geometry.physical", g.mode === "physical");
+    this.setField(panel, "geometry.openPercent", Math.round((g.openFraction ?? 0.33) * 100));
+    this.setField(panel, "geometry.hinge", g.hinge ?? "a");
+    this.setField(panel, "geometry.swing", String(g.swing ?? 1));
+    this.setField(panel, "geometry.passableGap", g.passableGap ?? 1);
   }
 
   /** Switching a channel to Proximity/Distance with no range set fills in 1 grid square. */
@@ -479,6 +571,7 @@ export class WallConfigTab {
     this.renderIntegrity(panel.querySelector("[data-thr-integrity]"), integrity);
     this.refreshThresholds(panel, ui);
     this.refreshAppearance(panel, ui, isDoor);
+    this.refreshGeometry(panel, ui, isDoor);
   }
 
   /**

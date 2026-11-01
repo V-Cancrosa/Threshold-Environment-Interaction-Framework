@@ -92,7 +92,31 @@
         "none": "Nothing",
         "custom": "Custom…"
       },
-      "Repeat": "Repeat every grid square"
+      "Repeat": "Repeat every grid square",
+      "GeometryLegend": "Opening ajar",
+      "Physical": "Physical opening (the leaf really moves)",
+      "PhysicalHint": "When ajar, the door leaf swings around its hinge (or slides back) and Foundry works out what can be seen through the gap. Off: ajar is approximated by limiting vision instead.",
+      "OpenAmount": "How far ajar",
+      "OpenSwing": "{degrees}°",
+      "OpenSlide": "{percent}% slid back",
+      "Hinge": "Hinge",
+      "HingeEnd": {
+        "a": "Start of the wall (A)",
+        "b": "End of the wall (B)"
+      },
+      "Swing": "Swings",
+      "SwingDir": {
+        "cw": "Clockwise ↻",
+        "ccw": "Anticlockwise ↺"
+      },
+      "PassableGap": "Passable from a gap of (grid squares)",
+      "GapPassable": "Gap {gap} of {length} grid squares: tokens can pass.",
+      "GapBlocked": "Gap {gap} of {length} grid squares: too narrow, so a movement-only helper wall stays in the frame.",
+      "Approximate": "approximate",
+      "LegendLeaf": "door leaf",
+      "LegendClosed": "open frame",
+      "LegendHelper": "helper wall (blocks movement only)",
+      "HelperNotice": "This is a Threshold helper wall: it blocks movement through a door standing ajar. It is created, moved and deleted automatically with its door."
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"

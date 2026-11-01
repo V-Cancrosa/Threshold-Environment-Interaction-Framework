@@ -79,6 +79,13 @@
         "damaged": "modules/threshold/assets/textures/door-broken.svg"
       },
       "animation": "swing"
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "reinforced-door": {
@@ -116,6 +123,13 @@
         "damaged": ""
       },
       "animation": "slide"
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "secret-door": {
@@ -139,6 +153,13 @@
     "thresholds": {
       "sound": 0.5,
       "attenuation": true
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "gate": {
@@ -175,6 +196,13 @@
         "damaged": ""
       },
       "animation": "swing"
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "glass-door": {
@@ -216,6 +244,13 @@
         "damaged": "modules/threshold/assets/textures/window-broken.svg"
       },
       "animation": "slide"
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "frosted-glass-door": {
@@ -257,6 +292,13 @@
         "damaged": "modules/threshold/assets/textures/window-broken.svg"
       },
       "animation": "slide"
+    },
+    "geometry": {
+      "mode": "physical",
+      "hinge": "a",
+      "swing": 1,
+      "openFraction": 0.33,
+      "passableGap": 1
     }
   },
   "window": {

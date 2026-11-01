@@ -92,7 +92,31 @@
         "none": "Nic",
         "custom": "Własna…"
       },
-      "Repeat": "Powtarzaj co pole siatki"
+      "Repeat": "Powtarzaj co pole siatki",
+      "GeometryLegend": "Uchylanie",
+      "Physical": "Fizyczne uchylanie (skrzydło naprawdę się porusza)",
+      "PhysicalHint": "Po uchyleniu skrzydło obraca się na zawiasie (albo wsuwa się) i Foundry samo liczy, co widać przez szczelinę. Wyłączone: uchylenie jest przybliżane ograniczeniem wzroku.",
+      "OpenAmount": "Stopień uchylenia",
+      "OpenSwing": "{degrees}°",
+      "OpenSlide": "wsunięte w {percent}%",
+      "Hinge": "Zawias",
+      "HingeEnd": {
+        "a": "Początek ściany (A)",
+        "b": "Koniec ściany (B)"
+      },
+      "Swing": "Kierunek",
+      "SwingDir": {
+        "cw": "W prawo ↻",
+        "ccw": "W lewo ↺"
+      },
+      "PassableGap": "Przejście od szczeliny (pola siatki)",
+      "GapPassable": "Szczelina {gap} z {length} pól siatki: żetony mogą przejść.",
+      "GapBlocked": "Szczelina {gap} z {length} pól siatki: za wąsko, więc w futrynie zostaje ściana pomocnicza blokująca tylko ruch.",
+      "Approximate": "przybliżone",
+      "LegendLeaf": "skrzydło",
+      "LegendClosed": "wolna futryna",
+      "LegendHelper": "ściana pomocnicza (blokuje tylko ruch)",
+      "HelperNotice": "To pomocnicza ściana Threshold: blokuje przejście przez uchylone drzwi. Moduł tworzy ją, przesuwa i usuwa automatycznie razem z drzwiami."
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"

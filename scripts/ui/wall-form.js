@@ -1,6 +1,7 @@
 import { BACKUP_FLAG_KEY, CHANNELS, CHANNEL_VALUES, DOOR_ANIMATIONS, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
 import { makeBarrier } from "../core/defaults.js";
 import { validateBarrier } from "../core/validator.js";
+import { GeometryEngine } from "../geometry/geometry-engine.js";
 
 /** Form fields of the Threshold tab live under this key, so the sheet submits them with everything else. */
 export const UI_KEY = "ui";
@@ -98,7 +99,20 @@ export function barrierFromForm(ui, existing, profiles) {
     }
   }
 
-  const layer = { profile: profileId, state, channels, thresholds, interaction, material, integrity, appearance };
+  const geometry = {};
+  const ug = ui.geometry;
+  if (ug && typeof ug === "object") {
+    if ("physical" in ug) geometry.mode = toBool(ug.physical) ? "physical" : "native-segment";
+    if (["a", "b"].includes(ug.hinge)) geometry.hinge = ug.hinge;
+    const swing = Number(ug.swing);
+    if (swing === 1 || swing === -1) geometry.swing = swing;
+    const percent = toNumber(ug.openPercent);
+    if (percent !== null) geometry.openFraction = Math.min(1, Math.max(0, percent / 100));
+    const gap = toNumber(ug.passableGap);
+    if (gap !== null && gap >= 0) geometry.passableGap = gap;
+  }
+
+  const layer = { profile: profileId, state, channels, thresholds, interaction, material, integrity, appearance, geometry };
   // For each state the tab sends, its selects replace the override entirely (an empty
   // select means "no override"). States the tab does not show keep the base's override.
   if (ui.stateOverrides && typeof ui.stateOverrides === "object") {
@@ -131,6 +145,7 @@ export function applyFormToChanges(document, changes, { profiles, adapter, syncE
     if (!existing) return true;
     const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY);
     if (backup && syncEnabled()) Object.assign(changes, foundry.utils.deepClone(backup));
+    if (existing.geometry?.closedC && syncEnabled()) changes.c = [...existing.geometry.closedC];
     // null rather than a deletion operator: works the same on every Foundry version.
     flags[FLAG_KEY] = null;
     flags[BACKUP_FLAG_KEY] = null;
@@ -139,9 +154,13 @@ export function applyFormToChanges(document, changes, { profiles, adapter, syncE
 
   const errors = validateBarrier(barrier);
   if (errors.length) throw new Error(errors.join("; "));
-  flags[FLAG_KEY] = barrier;
+  const { barrier: settled, c } = GeometryEngine.resolve(barrier, document.c ?? document._source?.c);
+  flags[FLAG_KEY] = settled;
   const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY) ?? adapter.snapshot(document);
   if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) flags[BACKUP_FLAG_KEY] = backup;
-  if (syncEnabled()) Object.assign(changes, adapter.toWallData(barrier, undefined, backup));
+  if (syncEnabled()) {
+    Object.assign(changes, adapter.toWallData(settled, undefined, backup));
+    if (c) changes.c = c;
+  }
   return true;
 }

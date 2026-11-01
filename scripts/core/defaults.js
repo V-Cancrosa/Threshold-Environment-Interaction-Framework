@@ -63,10 +63,21 @@ export const DEFAULT_BARRIER = Object.freeze({
     lockable: false,
     destructible: false
   },
+  /**
+   * Door geometry. mode "native-segment": ajar is approximated through the channels.
+   * mode "physical": an ajar door really moves — the leaf swings around its hinge (or
+   * slides back for sliding doors) by openFraction (0–1; 1 = 90° or fully retracted),
+   * and Foundry works out what is visible through the gap. Until the gap is
+   * passableGap grid squares wide, a movement-only helper wall keeps tokens out.
+   * closedC remembers the wall's closed coordinates while the leaf is moved.
+   */
   geometry: {
     mode: "native-segment",
-    openFraction: 0,
-    hinge: null,
+    hinge: "a",
+    swing: 1,
+    openFraction: 0.33,
+    passableGap: 1,
+    closedC: null,
     angle: 0,
     openings: []
   }

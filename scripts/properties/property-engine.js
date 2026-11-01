@@ -18,6 +18,8 @@ export class PropertyEngine {
     const override = Object.entries(barrier.stateOverrides?.[barrier.state] ?? {}).filter(([, v]) => v != null);
     if (override.length) return { ...base, ...Object.fromEntries(override) };
     if (barrier.state === "open") return { ...OPEN_CHANNELS };
+    // A physically ajar door blocks like a closed one: the gap itself is real geometry.
+    if (barrier.state === "ajar" && barrier.geometry?.mode === "physical") return base;
     if (barrier.state === "ajar") {
       return Object.fromEntries(CHANNELS.map(c => [c, this.loosest(c, base[c], AJAR_CHANNELS[c])]));
     }

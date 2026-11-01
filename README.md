@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.7.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.8.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -26,6 +26,7 @@ Double-click a wall (or right-click → configure) as a GM. The wall sheet gets 
 - **Threshold:** a wall that already has a profile opens on this tab. At the top: the **barrier profile**, door control, current state, and a **state matrix** with each channel's behaviour (rows) in every state (columns), coloured from blocks to lets through. The current state is outlined, and a dot marks a value overridden for that state. Click a state's column to edit it.
 - Below are three collapsible sections:
   - **What gets through:** the base channels for the closed barrier, plus proximity range (in grid squares) and attenuation.
+  - **Opening ajar** (doors only): physical opening on/off, how far ajar (degrees, or % slid back for sliding doors), which end is the hinge, swing direction, and from what gap tokens can pass. A schematic shows the leaf, the frame and whether a helper wall is in place.
   - **Behaviour in other states:** for Open, Ajar, Locked and Damaged, set what each channel does. Every field starts at **Default (…)**, which shows what the built-in rule gives; pick a value to override it. Ajar and Locked are available only for doors.
   - **Appearance:** the barrier's texture on the map: pick one of the bundled textures or browse for any image. Doors also choose an animation (swing, slide, ascend, descend) and double door; other barriers choose thickness and whether the texture repeats every grid square. Each state can show its own texture (in **Behaviour in other states**): same as closed, nothing, or a custom image.
   - **Material and interaction:** material, current and maximum durability (with a bar), and whether players can operate, lock or destroy the barrier.
@@ -79,6 +80,20 @@ Customise any profile when attaching it:
 ```js
 await thr.apply("window", undefined, { thresholds: { vision: 2 } });  // see through within 2 grid squares
 ```
+
+## Opening doors ajar
+
+Door profiles use **physical opening**: when a door stands ajar, Threshold really moves the wall. A swinging leaf rotates around its hinge (up to 90°), a sliding leaf retracts into the frame. The leaf blocks as a closed door would, and Foundry's own vision works out what can be seen, lit or heard through the actual gap. The door's texture moves with the leaf.
+
+```js
+await thr.ajar(0.33);                       // first selected door, ~30°
+await thr.barriers.setAjar(wall, 0.5);      // 45°, or half slid back
+```
+
+- **Movement:** Foundry tests movement along a single line from the token's centre, so a crack would let any token through. While the gap is narrower than **Passable from a gap of** (default 1 grid square), Threshold keeps a movement-only helper wall in the door frame. Helper walls are created, moved and deleted with their door; their sheet says so.
+- **Door controls:** clicking an ajar door's control opens it fully (the leaf goes back to the frame and Foundry's door animation plays); clicking again closes it.
+- **Moving a door by hand:** dragging an endpoint of a physical door makes the new position its closed position (an ajar door is closed first).
+- Turn physical opening off to fall back to the approximation (ajar = limited sight, sound passes).
 
 ## Textures
 
@@ -155,7 +170,7 @@ Barrier data is stored on the wall at `flags.threshold.barrier`. Every Threshold
 - A dedicated drawing tool and a quick profile switcher on the canvas.
 - Player interaction with non-door barriers (curtains, etc.) via a GM-validated socket request.
 - Segment openings (e.g. a door with a viewing slot as one object).
-- Door leaf rotation on the canvas and opening by a given angle.
+- Setting ajar from the canvas (e.g. a modifier-click on the door icon), and for players through a GM-validated request.
 - Cover, ballistic and system adapters (D&D 5e, Cyberpunk RED, WFRP…).
 
 ## Development

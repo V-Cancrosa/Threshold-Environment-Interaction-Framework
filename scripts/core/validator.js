@@ -1,4 +1,4 @@
-import { DOOR_ANIMATIONS, BARRIER_TYPES, CHANNELS, CHANNEL_VALUES, DOOR_MODES, SCHEMA_VERSION, STATES, THRESHOLD_CHANNELS } from "./constants.js";
+import { GEOMETRY_MODES, DOOR_ANIMATIONS, BARRIER_TYPES, CHANNELS, CHANNEL_VALUES, DOOR_MODES, SCHEMA_VERSION, STATES, THRESHOLD_CHANNELS } from "./constants.js";
 
 function checkChannels(channels, path, errors, { partial = false } = {}) {
   if (!channels || typeof channels !== "object") {
@@ -73,9 +73,19 @@ export function validateBarrier(data) {
     errors.push("appearance.thickness must be a number of grid squares between 0 and 2.");
   }
 
-  const fraction = data.geometry?.openFraction;
+  const g = data.geometry ?? {};
+  const fraction = g.openFraction;
   if (typeof fraction !== "number" || fraction < 0 || fraction > 1) {
     errors.push("geometry.openFraction must be a number from 0 to 1.");
+  }
+  if (g.mode !== undefined && !GEOMETRY_MODES.includes(g.mode)) errors.push(`Invalid geometry.mode: ${g.mode}`);
+  if (g.hinge !== undefined && !["a", "b"].includes(g.hinge)) errors.push(`geometry.hinge must be "a" or "b".`);
+  if (g.swing !== undefined && ![1, -1].includes(g.swing)) errors.push("geometry.swing must be 1 or -1.");
+  if (g.passableGap !== undefined && !(typeof g.passableGap === "number" && g.passableGap >= 0)) {
+    errors.push("geometry.passableGap must be a non-negative number of grid squares.");
+  }
+  if (g.closedC != null && !(Array.isArray(g.closedC) && g.closedC.length === 4 && g.closedC.every(Number.isFinite))) {
+    errors.push("geometry.closedC must be null or four coordinates.");
   }
   return errors;
 }

@@ -3,6 +3,7 @@ import { WallConfigTab } from "../ui/wall-config-tab.js";
 import { applyFormToChanges } from "../ui/wall-form.js";
 import { DurabilityBars } from "../canvas/durability-bars.js";
 import { BarrierTextures } from "../canvas/barrier-textures.js";
+import { HelperWalls } from "./helper-walls.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -24,6 +25,7 @@ class ThresholdFramework {
     this.interactions = new InteractionManager();
     this.syncEnabled = () => game.settings.get(MODULE_ID, "syncNative");
     this.barrierTextures = new BarrierTextures();
+    this.helperWalls = new HelperWalls({ adapter: this.foundry });
     this.durabilityBars = new DurabilityBars({ mode: () => game.settings.get(MODULE_ID, "durabilityBars") });
     this.wallConfigTab = new WallConfigTab({ profiles: this.profiles, syncEnabled: this.syncEnabled });
   }
@@ -100,10 +102,17 @@ class ThresholdFramework {
       }
     });
 
-    Hooks.on("updateWall", (wall, changes, options) => {
-      if (options?.[SYNC_OPTION] || !("ds" in changes)) return;
+    Hooks.on("updateWall", async (wall, changes, options) => {
       if (!game.users?.activeGM?.isSelf) return;
-      this.barriers.handleNativeDoorChange(wall);
+      if (!options?.[SYNC_OPTION]) {
+        // Hand edits first: a dragged door endpoint, or a native door control click.
+        if ("c" in changes) await this.barriers.handleManualMove(wall);
+        else if ("ds" in changes) await this.barriers.handleNativeDoorChange(wall);
+      }
+      await this.helperWalls.sync(wall);
+    });
+    Hooks.on("deleteWall", wall => {
+      if (game.users?.activeGM?.isSelf) this.helperWalls.removeFor(wall.id, wall.parent);
     });
   }
 
@@ -125,6 +134,8 @@ class ThresholdFramework {
       properties: this.properties,
       interactions: this.interactions,
       foundry: this.foundry,
+      /** Shortcuts for macros: stand the first selected door ajar (0–1). */
+      ajar: (openFraction, wall = this.foundry.getSelectedWalls()[0]) => this.barriers.setAjar(wall, openFraction),
       /** Shortcuts for macros: damage or repair the first selected wall. */
       damage: (amount, wall = this.foundry.getSelectedWalls()[0], options) => this.barriers.damage(wall, amount, options),
       repair: (amount, wall = this.foundry.getSelectedWalls()[0]) => this.barriers.repair(wall, amount),
