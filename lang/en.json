@@ -1,10 +1,26 @@
 {
   "THRESHOLD": {
     "Settings": {
+      "SyncNative": {
+        "Name": "Apply profiles to native walls",
+        "Hint": "When enabled, attaching a Threshold profile rewrites the wall's native movement, sight, light, sound and door settings. Disable to store profiles as metadata only."
+      },
       "Debug": {
         "Name": "Threshold Debug Logging",
         "Hint": "Enable verbose logging for Threshold development."
       }
+    },
+    "Material": {
+      "generic": "Generic",
+      "wood": "Wood",
+      "stone": "Stone",
+      "iron": "Iron",
+      "steel": "Steel",
+      "glass": "Glass",
+      "reinforced-glass": "Reinforced Glass",
+      "cloth": "Cloth",
+      "polymer": "Polymer",
+      "energy": "Energy Field"
     }
   }
 }

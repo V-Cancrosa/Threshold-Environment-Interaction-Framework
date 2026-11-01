@@ -1,8 +1,12 @@
 {
-  "generic": { "label": "Generic", "durability": null, "hardness": null },
-  "wood": { "label": "Wood", "durability": 30, "hardness": 3 },
-  "stone": { "label": "Stone", "durability": 100, "hardness": 10 },
-  "steel": { "label": "Steel", "durability": 120, "hardness": 12 },
-  "glass": { "label": "Glass", "durability": 15, "hardness": 1 },
-  "reinforced-glass": { "label": "Reinforced Glass", "durability": 80, "hardness": 8 }
+  "generic": { "label": "THRESHOLD.Material.generic", "durability": null, "hardness": null },
+  "wood": { "label": "THRESHOLD.Material.wood", "durability": 30, "hardness": 3 },
+  "stone": { "label": "THRESHOLD.Material.stone", "durability": 100, "hardness": 10 },
+  "iron": { "label": "THRESHOLD.Material.iron", "durability": 90, "hardness": 10 },
+  "steel": { "label": "THRESHOLD.Material.steel", "durability": 120, "hardness": 12 },
+  "glass": { "label": "THRESHOLD.Material.glass", "durability": 15, "hardness": 1 },
+  "reinforced-glass": { "label": "THRESHOLD.Material.reinforced-glass", "durability": 80, "hardness": 8 },
+  "cloth": { "label": "THRESHOLD.Material.cloth", "durability": 5, "hardness": 0 },
+  "polymer": { "label": "THRESHOLD.Material.polymer", "durability": 40, "hardness": 5 },
+  "energy": { "label": "THRESHOLD.Material.energy", "durability": null, "hardness": null }
 }

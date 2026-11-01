@@ -2,7 +2,7 @@
   "id": "threshold",
   "title": "Threshold — Environment Interaction Framework",
   "description": "Advanced spatial barriers, perception and environmental interaction for Foundry VTT.",
-  "version": "0.1.0-alpha.1",
+  "version": "0.2.0-alpha.1",
   "authors": [
     {
       "name": "V-Cancrosa"

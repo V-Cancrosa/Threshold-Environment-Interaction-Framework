@@ -1,10 +1,26 @@
 {
   "THRESHOLD": {
     "Settings": {
+      "SyncNative": {
+        "Name": "Stosuj profile do natywnych ścian",
+        "Hint": "Po włączeniu przypisanie profilu Threshold nadpisuje natywne ustawienia ruchu, wzroku, światła, dźwięku i drzwi danej ściany. Wyłącz, aby przechowywać profile wyłącznie jako metadane."
+      },
       "Debug": {
         "Name": "Logowanie diagnostyczne Threshold",
         "Hint": "Włącza szczegółowe logowanie na potrzeby rozwoju modułu Threshold."
       }
+    },
+    "Material": {
+      "generic": "Ogólny",
+      "wood": "Drewno",
+      "stone": "Kamień",
+      "iron": "Żelazo",
+      "steel": "Stal",
+      "glass": "Szkło",
+      "reinforced-glass": "Szkło wzmocnione",
+      "cloth": "Tkanina",
+      "polymer": "Tworzywo",
+      "energy": "Pole energetyczne"
     }
   }
 }

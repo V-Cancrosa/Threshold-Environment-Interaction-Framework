@@ -1,0 +1,9 @@
+{
+  "name": "threshold",
+  "private": true,
+  "type": "module",
+  "description": "Development tooling for the Threshold Foundry VTT module. Not part of the released package.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

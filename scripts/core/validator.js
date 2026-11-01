@@ -1,4 +1,23 @@
-import { BARRIER_TYPES, CHANNELS, SCHEMA_VERSION, STATES } from "./constants.js";
+import { BARRIER_TYPES, CHANNELS, CHANNEL_VALUES, DOOR_MODES, SCHEMA_VERSION, STATES, THRESHOLD_CHANNELS } from "./constants.js";
+
+function checkChannels(channels, path, errors, { partial = false } = {}) {
+  if (!channels || typeof channels !== "object") {
+    errors.push(`${path} must be an object.`);
+    return;
+  }
+  for (const channel of CHANNELS) {
+    if (!(channel in channels)) {
+      if (!partial) errors.push(`Missing channel: ${path}.${channel}`);
+      continue;
+    }
+    if (!CHANNEL_VALUES[channel].includes(channels[channel])) {
+      errors.push(`Invalid value for ${path}.${channel}: ${channels[channel]} (allowed: ${CHANNEL_VALUES[channel].join(", ")})`);
+    }
+  }
+  for (const key of Object.keys(channels)) {
+    if (!CHANNELS.includes(key)) errors.push(`Unknown channel: ${path}.${key}`);
+  }
+}
 
 export function validateBarrier(data) {
   const errors = [];
@@ -6,9 +25,26 @@ export function validateBarrier(data) {
   if (data.schemaVersion !== SCHEMA_VERSION) errors.push(`Unsupported schema version: ${data.schemaVersion}`);
   if (!BARRIER_TYPES.includes(data.type)) errors.push(`Invalid barrier type: ${data.type}`);
   if (!STATES.includes(data.state)) errors.push(`Invalid state: ${data.state}`);
-  for (const channel of CHANNELS) {
-    if (!(channel in (data.channels ?? {}))) errors.push(`Missing channel: ${channel}`);
+
+  checkChannels(data.channels, "channels", errors);
+  for (const [state, override] of Object.entries(data.stateOverrides ?? {})) {
+    if (!STATES.includes(state)) errors.push(`Invalid state in stateOverrides: ${state}`);
+    checkChannels(override, `stateOverrides.${state}`, errors, { partial: true });
   }
+
+  for (const channel of THRESHOLD_CHANNELS) {
+    const value = data.thresholds?.[channel];
+    if (value !== null && value !== undefined && !(typeof value === "number" && value >= 0)) {
+      errors.push(`thresholds.${channel} must be null or a non-negative number of grid units.`);
+    }
+  }
+
+  const door = data.interaction?.door ?? "none";
+  if (!DOOR_MODES.includes(door)) errors.push(`Invalid interaction.door: ${door}`);
+  if (door === "none" && ["ajar", "locked"].includes(data.state)) {
+    errors.push(`State "${data.state}" requires interaction.door to be "door" or "secret".`);
+  }
+
   const fraction = data.geometry?.openFraction;
   if (typeof fraction !== "number" || fraction < 0 || fraction > 1) {
     errors.push("geometry.openFraction must be a number from 0 to 1.");
