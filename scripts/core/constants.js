@@ -1,5 +1,5 @@
 export const MODULE_ID = "threshold";
-export const MODULE_VERSION = "0.6.0";
+export const MODULE_VERSION = "0.7.0";
 export const LOG_PREFIX = "[THR]";
 
 export const FLAG_KEY = "barrier";
@@ -55,3 +55,6 @@ export const THRESHOLD_CHANNELS = Object.freeze(["vision", "light", "sound"]);
 export const BARRIER_TYPES = Object.freeze(["wall", "door", "window", "bars", "opening", "field", "barricade"]);
 export const STATES = Object.freeze(["closed", "open", "ajar", "locked", "damaged"]);
 export const DOOR_MODES = Object.freeze(["none", "door", "secret"]);
+
+/** Native door animation types Threshold offers (CONFIG.Wall.animationTypes keys). */
+export const DOOR_ANIMATIONS = Object.freeze(["swing", "slide", "ascend", "descend"]);

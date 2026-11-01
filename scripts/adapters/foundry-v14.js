@@ -12,7 +12,7 @@ const FALLBACK = Object.freeze({
 const constant = name => globalThis.CONST?.[name] ?? FALLBACK[name];
 
 /** Native wall fields Threshold controls, and therefore backs up on attach. */
-export const NATIVE_FIELDS = Object.freeze(["move", "sight", "light", "sound", "door", "ds", "threshold"]);
+export const NATIVE_FIELDS = Object.freeze(["move", "sight", "light", "sound", "door", "ds", "threshold", "animation"]);
 
 /** Threshold channel name -> native WallDocument field. */
 const SENSE_FIELD = Object.freeze({ vision: "sight", light: "light", sound: "sound" });
@@ -74,11 +74,38 @@ export class FoundryV14Adapter {
   }
 
   /**
+   * Native door animation for the barrier's current look, or undefined to leave the
+   * wall's animation alone.
+   * @param {object} barrier
+   * @param {object|null} native  The wall's native settings from before Threshold (backup).
+   */
+  doorAnimation(barrier, native) {
+    const isDoor = (barrier.interaction?.door ?? "none") !== "none";
+    const texture = PropertyEngine.textureFor(barrier);
+    if (!isDoor || texture === null) {
+      // Not managed: give the wall back its own animation, if we know it.
+      return native && "animation" in native ? foundry.utils.deepClone(native.animation) : undefined;
+    }
+    if (texture === "") return null;
+    const a = barrier.appearance;
+    return {
+      type: a.animation ?? "swing",
+      texture,
+      double: Boolean(a.double),
+      direction: a.direction === -1 ? -1 : 1,
+      flip: Boolean(a.flip),
+      duration: native?.animation?.duration ?? 750,
+      strength: native?.animation?.strength ?? 1
+    };
+  }
+
+  /**
    * Translate a barrier profile into native WallDocument data.
    * @param {object} barrier
    * @param {number} gridDistance  Scene distance units per grid square.
+   * @param {object|null} native   The wall's pre-Threshold settings, used for door animation.
    */
-  toWallData(barrier, gridDistance = canvas?.scene?.grid?.distance ?? 1) {
+  toWallData(barrier, gridDistance = canvas?.scene?.grid?.distance ?? 1, native = null) {
     const channels = PropertyEngine.effectiveChannels(barrier);
     const data = {
       move: this.movementValue(channels.movement),
@@ -94,6 +121,8 @@ export class FoundryV14Adapter {
       data.threshold[field] = usesThreshold && typeof grids === "number" ? grids * gridDistance : null;
     }
     if (data.door === constant("WALL_DOOR_TYPES").NONE) data.ds = constant("WALL_DOOR_STATES").CLOSED;
+    const animation = this.doorAnimation(barrier, native);
+    if (animation !== undefined) data.animation = animation;
     return data;
   }
 

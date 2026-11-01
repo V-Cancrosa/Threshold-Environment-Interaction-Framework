@@ -51,10 +51,9 @@ export class BarrierManager {
     const barrier = makeBarrier(profileData, data, overrides);
     this.#validate(barrier);
 
-    const changes = { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier) };
-    if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) {
-      changes[`flags.${MODULE_ID}.${BACKUP_FLAG_KEY}`] = this.adapter.snapshot(document);
-    }
+    const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY) ?? this.adapter.snapshot(document);
+    const changes = { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier, backup) };
+    if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) changes[`flags.${MODULE_ID}.${BACKUP_FLAG_KEY}`] = backup;
     await document.update(changes, { [SYNC_OPTION]: true });
     return barrier;
   }
@@ -173,13 +172,13 @@ export class BarrierManager {
 
   async #write(document, barrier) {
     await document.update(
-      { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier) },
+      { [`flags.${MODULE_ID}.${FLAG_KEY}`]: barrier, ...this.#nativeChanges(barrier, document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) },
       { [SYNC_OPTION]: true }
     );
   }
 
-  #nativeChanges(barrier) {
-    return this.syncEnabled() ? this.adapter.toWallData(barrier) : {};
+  #nativeChanges(barrier, native = null) {
+    return this.syncEnabled() ? this.adapter.toWallData(barrier, undefined, native) : {};
   }
 
   #require(document) {

@@ -41,7 +41,7 @@ export function installFoundryMock({ isGM = true } = {}) {
 export class MockWall {
   constructor(source = {}) {
     this.id = "wall1";
-    this._source = { move: 20, sight: 20, light: 20, sound: 20, door: 0, ds: 0, threshold: { sight: null, light: null, sound: null, attenuation: false }, flags: {}, ...source };
+    this._source = { move: 20, sight: 20, light: 20, sound: 20, door: 0, ds: 0, threshold: { sight: null, light: null, sound: null, attenuation: false }, animation: null, flags: {}, ...source };
     this.updates = [];
   }
   get ds() { return this._source.ds; }

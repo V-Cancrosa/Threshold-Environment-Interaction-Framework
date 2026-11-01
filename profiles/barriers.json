@@ -72,6 +72,13 @@
         "cover": "partial",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/wood-door.svg",
+      "stateTextures": {
+        "damaged": "modules/threshold/assets/textures/door-broken.svg"
+      },
+      "animation": "swing"
     }
   },
   "reinforced-door": {
@@ -102,6 +109,13 @@
         "cover": "full",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/steel-door.svg",
+      "stateTextures": {
+        "damaged": ""
+      },
+      "animation": "slide"
     }
   },
   "secret-door": {
@@ -154,6 +168,13 @@
         "cover": "partial",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/gate.svg",
+      "stateTextures": {
+        "damaged": ""
+      },
+      "animation": "swing"
     }
   },
   "glass-door": {
@@ -188,6 +209,13 @@
         "cover": "partial",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/glass-door.svg",
+      "stateTextures": {
+        "damaged": "modules/threshold/assets/textures/window-broken.svg"
+      },
+      "animation": "slide"
     }
   },
   "frosted-glass-door": {
@@ -222,6 +250,13 @@
         "cover": "partial",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/frosted-glass-door.svg",
+      "stateTextures": {
+        "damaged": "modules/threshold/assets/textures/window-broken.svg"
+      },
+      "animation": "slide"
     }
   },
   "window": {
@@ -251,6 +286,13 @@
     },
     "interaction": {
       "destructible": true
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/window.svg",
+      "stateTextures": {
+        "damaged": "modules/threshold/assets/textures/window-broken.svg"
+      },
+      "thickness": 0.15
     }
   },
   "curtained-window": {
@@ -279,6 +321,13 @@
     },
     "interaction": {
       "playersCanOperate": true
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/curtains-closed.svg",
+      "stateTextures": {
+        "open": "modules/threshold/assets/textures/curtains-open.svg"
+      },
+      "thickness": 0.15
     }
   },
   "armored-glass": {
@@ -293,6 +342,10 @@
       "sound": "blocked",
       "cover": "full",
       "ballistic": "blocked"
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/armored-glass.svg",
+      "thickness": 0.2
     }
   },
   "bars": {
@@ -307,6 +360,10 @@
       "sound": "transmitted",
       "cover": "partial",
       "ballistic": "conditional"
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/bars.svg",
+      "thickness": 0.2
     }
   },
   "viewing-slot": {
@@ -324,6 +381,11 @@
     },
     "thresholds": {
       "vision": 0.5
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/viewing-slot.svg",
+      "thickness": 0.25,
+      "repeat": false
     }
   },
   "force-field": {
@@ -346,6 +408,13 @@
         "cover": "none",
         "ballistic": "passable"
       }
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/force-field.svg",
+      "stateTextures": {
+        "damaged": ""
+      },
+      "thickness": 0.25
     }
   },
   "barricade": {
@@ -370,6 +439,13 @@
     },
     "interaction": {
       "destructible": true
+    },
+    "appearance": {
+      "texture": "modules/threshold/assets/textures/barricade.svg",
+      "stateTextures": {
+        "damaged": "modules/threshold/assets/textures/barricade-broken.svg"
+      },
+      "thickness": 0.35
     }
   }
 }

@@ -172,3 +172,32 @@ test("invalid override values are ignored rather than stored", () => {
   const barrier = barrierFromForm({ profile: "door", stateOverrides }, null, deps.profiles);
   assert.equal(barrier.stateOverrides.open, null);
 });
+
+test("appearance edited on the tab: texture, animation and per-state textures", async () => {
+  const wall = new MockWall();
+  await submit(wall, sheetUpdate({
+    profile: "door",
+    appearance: {
+      texture: "worlds/my/oak.webp", animation: "slide", double: true, thickness: "0.3",
+      stateTextures: { damaged: { mode: "none", path: "" }, open: { mode: "custom", path: "worlds/my/open.webp" }, locked: { mode: "inherit", path: "x" } }
+    }
+  }));
+  const a = wall.getFlag("threshold", "barrier").appearance;
+  assert.equal(a.texture, "worlds/my/oak.webp");
+  assert.equal(a.animation, "slide");
+  assert.equal(a.double, true);
+  assert.equal(a.thickness, 0.3);
+  assert.deepEqual([a.stateTextures.damaged, a.stateTextures.open, a.stateTextures.locked], ["", "worlds/my/open.webp", null]);
+  assert.equal(wall._source.animation.texture, "worlds/my/oak.webp");
+  assert.equal(wall._source.animation.type, "slide");
+  assert.equal(wall._source.animation.double, true);
+});
+
+test("clearing the texture hands the door's look back to Foundry", async () => {
+  const wall = new MockWall();
+  await submit(wall, sheetUpdate({ profile: "door" }));
+  assert.ok(wall._source.animation?.texture);
+  await submit(wall, sheetUpdate({ profile: "door", appearance: { texture: "" } }));
+  assert.equal(wall.getFlag("threshold", "barrier").appearance.texture, null);
+  assert.equal(wall._source.animation, null, "original wall had no animation");
+});

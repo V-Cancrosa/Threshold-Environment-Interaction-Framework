@@ -76,7 +76,23 @@
       "NoDurability": "No maximum durability: this barrier cannot be damaged.",
       "DurabilityHint": "Leave Current empty for full durability. At 0 the barrier switches to the Damaged state.",
       "ThresholdUnused": "not used",
-      "ThresholdMissing": "set a range"
+      "ThresholdMissing": "set a range",
+      "AppearanceLegend": "Appearance",
+      "AppearanceHint": "How the barrier looks on the map. Pick a bundled texture or any image of your own.",
+      "Texture": "Texture",
+      "TextureNone": "None (Foundry's default look)",
+      "Browse": "Browse files",
+      "DoorAnimation": "Door animation",
+      "DoubleDoor": "Double door",
+      "Thickness": "Thickness (grid squares)",
+      "DoorAppearanceHint": "Doors use Foundry's animated door: the texture moves when the door opens.",
+      "StateTextureLabel": "Texture in this state",
+      "StateTexture": {
+        "inherit": "Same as closed",
+        "none": "Nothing",
+        "custom": "Custom…"
+      },
+      "Repeat": "Repeat every grid square"
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"
@@ -152,6 +168,12 @@
       "ajar": "Ajar",
       "locked": "Locked",
       "damaged": "Damaged"
+    },
+    "Animation": {
+      "swing": "Swing",
+      "slide": "Slide",
+      "ascend": "Ascend",
+      "descend": "Descend"
     }
   }
 }

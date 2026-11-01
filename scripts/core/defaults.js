@@ -30,6 +30,23 @@ export const DEFAULT_BARRIER = Object.freeze({
    * AJAR_CHANNELS, and "closed", "locked" and "damaged" use the base channels.
    */
   stateOverrides: {},
+  /**
+   * How the barrier looks on the map. texture: null leaves the look to Foundry.
+   * stateTextures[state]: null = same as closed, "" = nothing drawn, or a path.
+   * Doors use Foundry's animated door (animation type, double, direction, flip);
+   * other barriers are drawn by Threshold, `thickness` grid squares thick.
+   */
+  appearance: {
+    texture: null,
+    stateTextures: { open: null, ajar: null, locked: null, damaged: null },
+    animation: "swing",
+    double: false,
+    direction: 1,
+    flip: false,
+    thickness: 0.2,
+    /** Repeat the texture once per grid square (true) or stretch one copy along the wall. */
+    repeat: true
+  },
   material: {
     id: "generic",
     /** Maximum durability; null means the barrier cannot be damaged. */

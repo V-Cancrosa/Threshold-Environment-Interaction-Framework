@@ -35,10 +35,12 @@ test("profiles inherit material durability", () => {
 });
 
 test("closed gate blocks movement but lets sight, light and sound through", () => {
-  assert.deepEqual(nativeFor("gate"), {
+  const { animation, ...senses } = nativeFor("gate");
+  assert.deepEqual(senses, {
     move: 20, door: 1, ds: 0, sight: SENSE.NONE, light: SENSE.NONE, sound: SENSE.NONE,
     threshold: { attenuation: false, sight: null, light: null, sound: null }
   });
+  assert.equal(animation.texture, "modules/threshold/assets/textures/gate.svg");
 });
 
 test("a gate left ajar stays see-through", () => {
@@ -224,4 +226,33 @@ test("doors let sound through only when listening up close", () => {
   assert.equal(data.sound, 30);
   assert.equal(data.threshold.sound, 5, "1 grid square at 5 units");
   assert.equal(data.threshold.attenuation, true);
+});
+
+test("doors get Foundry's animated door with the profile texture", () => {
+  const data = nativeFor("glass-door");
+  assert.deepEqual(data.animation, {
+    type: "slide", texture: "modules/threshold/assets/textures/glass-door.svg",
+    double: false, direction: 1, flip: false, duration: 750, strength: 1
+  });
+});
+
+test("door texture follows the state; an empty state texture removes the door mesh", () => {
+  assert.equal(nativeFor("door", { state: "damaged" }).animation.texture, "modules/threshold/assets/textures/door-broken.svg");
+  assert.equal(nativeFor("reinforced-door", { state: "damaged" }).animation, null);
+});
+
+test("non-door barriers leave the native animation alone", () => {
+  assert.equal("animation" in nativeFor("bars"), false);
+});
+
+test("a door without a texture gets its original animation back", async () => {
+  const original = { type: "ascend", texture: "my/portcullis.webp", double: false, direction: 1, flip: false, duration: 1500, strength: 1 };
+  const wall = new MockWall({ animation: original });
+  await manager.attach(wall, "door");
+  assert.equal(wall._source.animation.texture, "modules/threshold/assets/textures/wood-door.svg");
+  assert.equal(wall._source.animation.duration, 1500, "keeps the wall's own timing");
+  await manager.update(wall, { appearance: { texture: null } });
+  assert.deepEqual(wall._source.animation, original);
+  await manager.remove(wall);
+  assert.deepEqual(wall._source.animation, original);
 });

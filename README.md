@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.6.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.7.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -27,6 +27,7 @@ Double-click a wall (or right-click → configure) as a GM. The wall sheet gets 
 - Below are three collapsible sections:
   - **What gets through:** the base channels for the closed barrier, plus proximity range (in grid squares) and attenuation.
   - **Behaviour in other states:** for Open, Ajar, Locked and Damaged, set what each channel does. Every field starts at **Default (…)**, which shows what the built-in rule gives; pick a value to override it. Ajar and Locked are available only for doors.
+  - **Appearance:** the barrier's texture on the map: pick one of the bundled textures or browse for any image. Doors also choose an animation (swing, slide, ascend, descend) and double door; other barriers choose thickness and whether the texture repeats every grid square. Each state can show its own texture (in **Behaviour in other states**): same as closed, nothing, or a custom image.
   - **Material and interaction:** material, current and maximum durability (with a bar), and whether players can operate, lock or destroy the barrier.
 
 Proximity ranges are entered in **grid squares** so profiles work in any system; the sheet shows each range in scene units (e.g. `= 5 ft`) and flags ranges that no channel uses.
@@ -78,6 +79,15 @@ Customise any profile when attaching it:
 ```js
 await thr.apply("window", undefined, { thresholds: { vision: 2 } });  // see through within 2 grid squares
 ```
+
+## Textures
+
+Most profiles come with a texture (16 bundled SVGs in `assets/textures/`, made for this module):
+
+- **Doors** use Foundry's own animated door: Threshold sets the wall's door animation texture and type, so the texture swings or slides when the door opens. A damaged door switches to its broken texture (or none).
+- **Other barriers** (bars, windows, curtains, armored glass, viewing slot, force field, barricade) are drawn by Threshold in the map layer, above tiles and below tokens, so fog of war hides them like tiles. A broken window shows shards, a damaged force field disappears, curtains drawn back show the window.
+
+Clearing a door's texture gives the wall back the animation it had before Threshold.
 
 ## Durability and damage
 
@@ -146,7 +156,6 @@ Barrier data is stored on the wall at `flags.threshold.barrier`. Every Threshold
 - Player interaction with non-door barriers (curtains, etc.) via a GM-validated socket request.
 - Segment openings (e.g. a door with a viewing slot as one object).
 - Door leaf rotation on the canvas and opening by a given angle.
-- Textures for barriers on the map (next milestone).
 - Cover, ballistic and system adapters (D&D 5e, Cyberpunk RED, WFRP…).
 
 ## Development

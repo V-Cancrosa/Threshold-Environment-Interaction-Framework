@@ -1,4 +1,4 @@
-import { BACKUP_FLAG_KEY, CHANNELS, CHANNEL_VALUES, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
+import { BACKUP_FLAG_KEY, CHANNELS, CHANNEL_VALUES, DOOR_ANIMATIONS, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
 import { makeBarrier } from "../core/defaults.js";
 import { validateBarrier } from "../core/validator.js";
 
@@ -79,7 +79,26 @@ export function barrierFromForm(ui, existing, profiles) {
     integrity.current = typeof max !== "number" || current === null || current >= max ? null : Math.max(0, current);
   }
 
-  const layer = { profile: profileId, state, channels, thresholds, interaction, material, integrity };
+  const appearance = {};
+  const ua = ui.appearance;
+  if (ua && typeof ua === "object") {
+    if ("texture" in ua) appearance.texture = ua.texture ? String(ua.texture).trim() || null : null;
+    if (DOOR_ANIMATIONS.includes(ua.animation)) appearance.animation = ua.animation;
+    if ("double" in ua) appearance.double = toBool(ua.double);
+    if ("repeat" in ua) appearance.repeat = toBool(ua.repeat);
+    const thickness = toNumber(ua.thickness);
+    if (thickness !== null && thickness > 0 && thickness <= 2) appearance.thickness = thickness;
+    if (ua.stateTextures && typeof ua.stateTextures === "object") {
+      appearance.stateTextures = {};
+      for (const [s, value] of Object.entries(ua.stateTextures)) {
+        if (!STATES.includes(s) || !value) continue;
+        const path = String(value.path ?? "").trim();
+        appearance.stateTextures[s] = value.mode === "none" ? "" : value.mode === "custom" && path ? path : null;
+      }
+    }
+  }
+
+  const layer = { profile: profileId, state, channels, thresholds, interaction, material, integrity, appearance };
   // For each state the tab sends, its selects replace the override entirely (an empty
   // select means "no override"). States the tab does not show keep the base's override.
   if (ui.stateOverrides && typeof ui.stateOverrides === "object") {
@@ -121,7 +140,8 @@ export function applyFormToChanges(document, changes, { profiles, adapter, syncE
   const errors = validateBarrier(barrier);
   if (errors.length) throw new Error(errors.join("; "));
   flags[FLAG_KEY] = barrier;
-  if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) flags[BACKUP_FLAG_KEY] = adapter.snapshot(document);
-  if (syncEnabled()) Object.assign(changes, adapter.toWallData(barrier));
+  const backup = document.getFlag(MODULE_ID, BACKUP_FLAG_KEY) ?? adapter.snapshot(document);
+  if (!document.getFlag(MODULE_ID, BACKUP_FLAG_KEY)) flags[BACKUP_FLAG_KEY] = backup;
+  if (syncEnabled()) Object.assign(changes, adapter.toWallData(barrier, undefined, backup));
   return true;
 }

@@ -1,4 +1,4 @@
-import { BARRIER_TYPES, CHANNELS, CHANNEL_VALUES, DOOR_MODES, SCHEMA_VERSION, STATES, THRESHOLD_CHANNELS } from "./constants.js";
+import { DOOR_ANIMATIONS, BARRIER_TYPES, CHANNELS, CHANNEL_VALUES, DOOR_MODES, SCHEMA_VERSION, STATES, THRESHOLD_CHANNELS } from "./constants.js";
 
 function checkChannels(channels, path, errors, { partial = false } = {}) {
   if (!channels || typeof channels !== "object") {
@@ -56,6 +56,21 @@ export function validateBarrier(data) {
     if (typeof current !== "number" || current < 0) errors.push("integrity.current must be null or a non-negative number.");
     else if (typeof max !== "number") errors.push("integrity.current requires material.durability.");
     else if (current > max) errors.push(`integrity.current (${current}) exceeds material.durability (${max}).`);
+  }
+
+  const appearance = data.appearance ?? {};
+  const isPath = v => v === null || v === undefined || typeof v === "string";
+  if (!isPath(appearance.texture)) errors.push("appearance.texture must be a path or null.");
+  for (const [state, value] of Object.entries(appearance.stateTextures ?? {})) {
+    if (!STATES.includes(state)) errors.push(`Invalid state in appearance.stateTextures: ${state}`);
+    if (!isPath(value)) errors.push(`appearance.stateTextures.${state} must be a path, "" or null.`);
+  }
+  if (appearance.animation !== undefined && !DOOR_ANIMATIONS.includes(appearance.animation)) {
+    errors.push(`Invalid appearance.animation: ${appearance.animation}`);
+  }
+  if (appearance.repeat !== undefined && typeof appearance.repeat !== "boolean") errors.push("appearance.repeat must be true or false.");
+  if (appearance.thickness !== undefined && !(typeof appearance.thickness === "number" && appearance.thickness > 0 && appearance.thickness <= 2)) {
+    errors.push("appearance.thickness must be a number of grid squares between 0 and 2.");
   }
 
   const fraction = data.geometry?.openFraction;

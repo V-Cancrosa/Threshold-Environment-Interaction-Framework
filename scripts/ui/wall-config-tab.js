@@ -1,8 +1,9 @@
-import { CHANNELS, CHANNEL_VALUES, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
+import { CHANNELS, CHANNEL_VALUES, DOOR_ANIMATIONS, DOOR_MODES, FLAG_KEY, MODULE_ID, STATES, THRESHOLD_CHANNELS } from "../core/constants.js";
 import { makeBarrier } from "../core/defaults.js";
 import { PropertyEngine } from "../properties/property-engine.js";
 import { UI_PREFIX, barrierFromForm } from "./wall-form.js";
 import { integrityColorNumber } from "../canvas/durability-bars.js";
+import { BUNDLED_TEXTURES, browseImage } from "./textures.js";
 
 /** Native WallConfig inputs that Threshold takes over while a profile is active. */
 const NATIVE_SELECTOR = ["move", "sight", "light", "sound", "door", "ds"].map(n => `[name="${n}"]`)
@@ -164,10 +165,24 @@ export class WallConfigTab {
         if (stateLink.closest(".thr-matrix")) openSection("states");
         return;
       }
+      const swatch = event.target.closest("[data-thr-texture]");
+      if (swatch) {
+        event.preventDefault();
+        this.setField(panel, "appearance.texture", swatch.dataset.thrTexture);
+        this.refresh(panel, form, notice, existing);
+        return;
+      }
+      const browse = event.target.closest("[data-thr-browse]");
+      if (browse) {
+        event.preventDefault();
+        browseImage(panel.querySelector(`[name="${browse.dataset.thrBrowse}"]`));
+        return;
+      }
       const reset = event.target.closest("[data-thr-reset]");
       if (reset) {
         event.preventDefault();
         for (const c of CHANNELS) this.setField(panel, `stateOverrides.${reset.dataset.thrReset}.${c}`, "");
+        this.setField(panel, `appearance.stateTextures.${reset.dataset.thrReset}.mode`, "inherit");
         this.refresh(panel, form, notice, existing);
       }
     });
@@ -233,6 +248,7 @@ export class WallConfigTab {
           ${check("thresholds.attenuation", t("THRESHOLD.Config.Attenuation"))}
           <p class="hint">${esc(t("THRESHOLD.Config.AttenuationHint"))}</p>`)}
         ${section("states", "fa-solid fa-code-branch", t("THRESHOLD.Config.OverridesLegend"), `<span class="thr-badge" data-thr-override-count></span>`, this.renderOverrides(b))}
+        ${section("appearance", "fa-solid fa-palette", t("THRESHOLD.Config.AppearanceLegend"), `<img class="thr-summary-texture" data-thr-texture-summary alt="">`, this.renderAppearance(b))}
         ${section("material", "fa-solid fa-cubes", t("THRESHOLD.Config.MaterialLegend"), `<span class="thr-note" data-thr-material-summary></span>`, `
           ${field(t("THRESHOLD.Config.Material"), materialSelect)}
           <div class="thr-grid thr-grid-2">
@@ -246,6 +262,61 @@ export class WallConfigTab {
             ${check("interaction.destructible", t("THRESHOLD.Config.destructible"))}
           </div>`)}
       </div>`;
+  }
+
+  textureInput(name, value) {
+    return `<div class="thr-path"><input type="text" name="${name}" value="${esc(value ?? "")}" placeholder="${esc(t("THRESHOLD.Config.TextureNone"))}">`
+      + `<button type="button" class="thr-browse" data-thr-browse="${name}" title="${esc(t("THRESHOLD.Config.Browse"))}"><i class="fa-solid fa-file-import"></i></button></div>`;
+  }
+
+  renderAppearance(b) {
+    const P = `${UI_PREFIX}.appearance`;
+    const a = b.appearance ?? {};
+    const swatches = `<button type="button" class="thr-swatch thr-swatch-none" data-thr-texture="" title="${esc(t("THRESHOLD.Config.TextureNone"))}"><i class="fa-solid fa-ban"></i></button>`
+      + BUNDLED_TEXTURES.map(tex => `<button type="button" class="thr-swatch" data-thr-texture="${esc(tex.src)}" title="${esc(tex.id)}"><img src="${esc(tex.src)}" alt=""></button>`).join("");
+    const animation = `<select name="${P}.animation">${DOOR_ANIMATIONS.map(v => option(v, t(`THRESHOLD.Animation.${v}`), a.animation ?? "swing")).join("")}</select>`;
+    return `
+      <p class="hint">${esc(t("THRESHOLD.Config.AppearanceHint"))}</p>
+      <div class="thr-preview-strip" data-thr-texture-preview></div>
+      ${field(t("THRESHOLD.Config.Texture"), this.textureInput(`${P}.texture`, a.texture))}
+      <div class="thr-swatches">${swatches}</div>
+      <div class="thr-grid thr-grid-2" data-thr-door-only>
+        ${field(t("THRESHOLD.Config.DoorAnimation"), animation)}
+        <div class="thr-field"><label>&nbsp;</label><label class="thr-check"><input type="checkbox" name="${P}.double"${a.double ? " checked" : ""}> ${esc(t("THRESHOLD.Config.DoubleDoor"))}</label></div>
+      </div>
+      <div class="thr-grid thr-grid-2" data-thr-drawn-only>
+        ${field(t("THRESHOLD.Config.Thickness"), `<input type="number" min="0.05" max="2" step="0.05" name="${P}.thickness" value="${esc(a.thickness ?? 0.2)}">`)}
+        <div class="thr-field"><label>&nbsp;</label><label class="thr-check"><input type="checkbox" name="${P}.repeat"${a.repeat !== false ? " checked" : ""}> ${esc(t("THRESHOLD.Config.Repeat"))}</label></div>
+      </div>
+      <p class="hint" data-thr-door-only>${esc(t("THRESHOLD.Config.DoorAppearanceHint"))}</p>`;
+  }
+
+  renderStateTexture(b, state) {
+    const P = `${UI_PREFIX}.appearance.stateTextures.${state}`;
+    const value = b.appearance?.stateTextures?.[state];
+    const mode = value === null || value === undefined ? "inherit" : value === "" ? "none" : "custom";
+    const modeSelect = `<select name="${P}.mode">${["inherit", "none", "custom"].map(m => option(m, t(`THRESHOLD.Config.StateTexture.${m}`), mode)).join("")}</select>`;
+    return `<div class="thr-state-texture" data-thr-state-texture="${state}">
+        ${field(`<i class="fa-solid fa-palette"></i> ${esc(t("THRESHOLD.Config.StateTextureLabel"))}`, modeSelect)}
+        <div data-thr-custom-texture>${this.textureInput(`${P}.path`, mode === "custom" ? value : "")}</div>
+      </div>`;
+  }
+
+  /** Show/hide appearance fields for doors vs. drawn barriers and update previews. */
+  refreshAppearance(panel, ui, isDoor) {
+    for (const el of panel.querySelectorAll("[data-thr-door-only]")) el.hidden = !isDoor;
+    for (const el of panel.querySelectorAll("[data-thr-drawn-only]")) el.hidden = isDoor;
+    const texture = ui.appearance?.texture || "";
+    for (const sw of panel.querySelectorAll("[data-thr-texture]")) sw.classList.toggle("active", sw.dataset.thrTexture === texture);
+    const summary = panel.querySelector("[data-thr-texture-summary]");
+    summary.hidden = !texture;
+    if (texture) summary.src = texture;
+    const strip = panel.querySelector("[data-thr-texture-preview]");
+    strip.innerHTML = texture ? `<img src="${esc(texture)}" alt="">` : `<span>${esc(t("THRESHOLD.Config.TextureNone"))}</span>`;
+    for (const group of panel.querySelectorAll("[data-thr-state-texture]")) {
+      const mode = group.querySelector("select").value;
+      group.querySelector("[data-thr-custom-texture]").hidden = mode !== "custom";
+    }
   }
 
   /**
@@ -265,6 +336,7 @@ export class WallConfigTab {
       return `<div class="thr-override-group" data-thr-state-group="${state}">
           <p class="hint">${esc(t(`THRESHOLD.Config.OverrideHint.${state}`))}</p>
           <div class="thr-grid thr-grid-2">${fields}</div>
+          ${this.renderStateTexture(b, state)}
           <button type="button" class="thr-reset" data-thr-reset="${state}"><i class="fa-solid fa-rotate-left"></i> ${esc(t("THRESHOLD.Config.ResetState"))}</button>
         </div>`;
     }).join("");
@@ -343,7 +415,16 @@ export class WallConfigTab {
     for (const k of ["playersCanOperate", "lockable", "destructible"]) this.setField(panel, `interaction.${k}`, b.interaction[k]);
     for (const state of OVERRIDE_STATES) {
       for (const c of CHANNELS) this.setField(panel, `stateOverrides.${state}.${c}`, b.stateOverrides?.[state]?.[c] ?? "");
+      const tex = b.appearance?.stateTextures?.[state];
+      this.setField(panel, `appearance.stateTextures.${state}.mode`, tex === null || tex === undefined ? "inherit" : tex === "" ? "none" : "custom");
+      this.setField(panel, `appearance.stateTextures.${state}.path`, tex || "");
     }
+    const a = b.appearance ?? {};
+    this.setField(panel, "appearance.texture", a.texture ?? "");
+    this.setField(panel, "appearance.animation", a.animation ?? "swing");
+    this.setField(panel, "appearance.double", a.double);
+    this.setField(panel, "appearance.thickness", a.thickness ?? 0.2);
+    this.setField(panel, "appearance.repeat", a.repeat !== false);
   }
 
   /** Switching a channel to Proximity/Distance with no range set fills in 1 grid square. */
@@ -397,6 +478,7 @@ export class WallConfigTab {
       : "";
     this.renderIntegrity(panel.querySelector("[data-thr-integrity]"), integrity);
     this.refreshThresholds(panel, ui);
+    this.refreshAppearance(panel, ui, isDoor);
   }
 
   /**

@@ -41,6 +41,18 @@ export class PropertyEngine {
     return { current, max, ratio: current / max };
   }
 
+  /**
+   * The texture to show in the barrier's current state: a path, "" for nothing,
+   * or null when Threshold does not manage the barrier's look.
+   */
+  static textureFor(barrier) {
+    const appearance = barrier?.appearance;
+    if (!appearance?.texture) return null;
+    if (!barrier.enabled) return null;
+    const override = appearance.stateTextures?.[barrier.state];
+    return override === null || override === undefined ? appearance.texture : override;
+  }
+
   static isMovementBlocked(barrier) {
     return this.getChannel(barrier, "movement") === "blocked";
   }

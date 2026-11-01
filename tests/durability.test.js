@@ -58,3 +58,25 @@ test("lowering max durability below current clamps to full", () => {
   assert.equal(changes.flags.threshold.barrier.integrity.current, null);
   assert.equal(changes.flags.threshold.barrier.material.durability, 20);
 });
+
+const { textureSegments, drawnTexture } = await import("../scripts/canvas/barrier-textures.js");
+
+test("textures repeat once per grid square along the wall", () => {
+  const segs = textureSegments([0, 0, 300, 0], 100, 0.2);
+  assert.equal(segs.length, 3);
+  assert.deepEqual(segs.map(s => s.x), [50, 150, 250]);
+  assert.equal(segs[0].width, 100);
+  assert.equal(segs[0].height, 20);
+  const diagonal = textureSegments([0, 0, 0, 250], 100, 0.2);
+  assert.equal(diagonal.length, 3, "2.5 squares round to 3 pieces");
+  assert.ok(Math.abs(diagonal[0].rotation - Math.PI / 2) < 1e-9);
+  const single = textureSegments([0, 0, 300, 0], 100, 0.2, false);
+  assert.deepEqual([single.length, single[0].x, single[0].width], [1, 150, 300], "repeat off: one stretched copy");
+});
+
+test("Threshold draws textures only for non-door barriers", () => {
+  assert.equal(drawnTexture(makeBarrier(profiles.resolve("bars"))), "modules/threshold/assets/textures/bars.svg");
+  assert.equal(drawnTexture(makeBarrier(profiles.resolve("door"))), null, "doors use Foundry's door mesh");
+  assert.equal(drawnTexture(makeBarrier(profiles.resolve("force-field"), { state: "damaged" })), null, "field down: nothing drawn");
+  assert.equal(drawnTexture(makeBarrier(profiles.resolve("window"), { state: "damaged" })), "modules/threshold/assets/textures/window-broken.svg");
+});

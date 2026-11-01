@@ -76,7 +76,23 @@
       "NoDurability": "Brak maksymalnej wytrzymałości: tej przeszkody nie da się uszkodzić.",
       "DurabilityHint": "Puste pole „Aktualna” oznacza pełną wytrzymałość. Przy 0 przeszkoda przechodzi w stan Uszkodzone.",
       "ThresholdUnused": "nieużywany",
-      "ThresholdMissing": "ustaw zasięg"
+      "ThresholdMissing": "ustaw zasięg",
+      "AppearanceLegend": "Wygląd",
+      "AppearanceHint": "Jak przeszkoda wygląda na mapie. Wybierz wbudowaną teksturę albo dowolny własny obraz.",
+      "Texture": "Tekstura",
+      "TextureNone": "Brak (domyślny wygląd Foundry)",
+      "Browse": "Przeglądaj pliki",
+      "DoorAnimation": "Animacja drzwi",
+      "DoubleDoor": "Drzwi podwójne",
+      "Thickness": "Grubość (w polach siatki)",
+      "DoorAppearanceHint": "Drzwi korzystają z animowanych drzwi Foundry: tekstura porusza się przy otwieraniu.",
+      "StateTextureLabel": "Tekstura w tym stanie",
+      "StateTexture": {
+        "inherit": "Jak zamknięte",
+        "none": "Nic",
+        "custom": "Własna…"
+      },
+      "Repeat": "Powtarzaj co pole siatki"
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"
@@ -152,6 +168,12 @@
       "ajar": "Uchylone",
       "locked": "Na klucz",
       "damaged": "Uszkodz."
+    },
+    "Animation": {
+      "swing": "Obrót na zawiasach",
+      "slide": "Przesuw",
+      "ascend": "Uniesienie",
+      "descend": "Opuszczenie"
     }
   }
 }

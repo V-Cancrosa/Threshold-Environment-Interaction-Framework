@@ -2,6 +2,7 @@ import { LOG_PREFIX, MODULE_ID, MODULE_VERSION, SYNC_OPTION } from "./constants.
 import { WallConfigTab } from "../ui/wall-config-tab.js";
 import { applyFormToChanges } from "../ui/wall-form.js";
 import { DurabilityBars } from "../canvas/durability-bars.js";
+import { BarrierTextures } from "../canvas/barrier-textures.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -22,6 +23,7 @@ class ThresholdFramework {
     this.properties = PropertyEngine;
     this.interactions = new InteractionManager();
     this.syncEnabled = () => game.settings.get(MODULE_ID, "syncNative");
+    this.barrierTextures = new BarrierTextures();
     this.durabilityBars = new DurabilityBars({ mode: () => game.settings.get(MODULE_ID, "durabilityBars") });
     this.wallConfigTab = new WallConfigTab({ profiles: this.profiles, syncEnabled: this.syncEnabled });
   }
@@ -60,10 +62,19 @@ class ThresholdFramework {
   }
 
   registerHooks() {
-    Hooks.on("canvasReady", () => this.durabilityBars.draw());
-    Hooks.on("canvasTearDown", () => this.durabilityBars.teardown());
+    Hooks.on("canvasReady", () => {
+      this.durabilityBars.draw();
+      this.barrierTextures.refresh();
+    });
+    Hooks.on("canvasTearDown", () => {
+      this.durabilityBars.teardown();
+      this.barrierTextures.teardown();
+    });
     for (const hook of ["createWall", "updateWall", "deleteWall"]) {
-      Hooks.on(hook, () => this.durabilityBars.scheduleRefresh());
+      Hooks.on(hook, () => {
+        this.durabilityBars.scheduleRefresh();
+        this.barrierTextures.scheduleRefresh();
+      });
     }
     Hooks.on("sightRefresh", () => this.durabilityBars.updateVisibility());
 
