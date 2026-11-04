@@ -116,7 +116,8 @@
       "LegendLeaf": "door leaf",
       "LegendClosed": "open frame",
       "LegendHelper": "helper wall (blocks movement only)",
-      "HelperNotice": "This is a Threshold helper wall: it blocks movement through a door standing ajar. It is created, moved and deleted automatically with its door."
+      "HelperNotice": "This is a Threshold helper wall: it blocks movement through a door standing ajar. It is created, moved and deleted automatically with its door.",
+      "WheelHint": "On the map: hold Alt and scroll over the door icon to open or close the door bit by bit. Players can do it on doors they may operate; the GM's client applies it."
     },
     "Error": {
       "Invalid": "Threshold: the wall was not saved. {error}"
@@ -198,6 +199,13 @@
       "slide": "Slide",
       "ascend": "Ascend",
       "descend": "Descend"
+    },
+    "Ajar": {
+      "NoBarrier": "This door has no Threshold profile.",
+      "NotDoor": "Only doors can be stood ajar.",
+      "Locked": "The door is locked.",
+      "NotAllowed": "You are not allowed to move this door.",
+      "NoGM": "No GM is connected to apply the change."
     }
   }
 }

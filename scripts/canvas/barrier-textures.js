@@ -64,7 +64,7 @@ export class BarrierTextures {
     for (const wall of canvas.scene.walls) {
       const barrier = wall.getFlag(MODULE_ID, FLAG_KEY);
       const src = drawnTexture(barrier);
-      if (src) wanted.push({ wall, src, thickness: barrier.appearance?.thickness ?? 0.2, repeat: barrier.appearance?.repeat !== false });
+      if (src) wanted.push({ wall, src, thickness: barrier.appearance?.thickness ?? 0.07, repeat: barrier.appearance?.repeat !== false });
     }
 
     // Load everything first so a slow texture never leaves the map half-drawn.

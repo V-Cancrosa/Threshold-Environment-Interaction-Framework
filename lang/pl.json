@@ -116,7 +116,8 @@
       "LegendLeaf": "skrzydło",
       "LegendClosed": "wolna futryna",
       "LegendHelper": "ściana pomocnicza (blokuje tylko ruch)",
-      "HelperNotice": "To pomocnicza ściana Threshold: blokuje przejście przez uchylone drzwi. Moduł tworzy ją, przesuwa i usuwa automatycznie razem z drzwiami."
+      "HelperNotice": "To pomocnicza ściana Threshold: blokuje przejście przez uchylone drzwi. Moduł tworzy ją, przesuwa i usuwa automatycznie razem z drzwiami.",
+      "WheelHint": "Na mapie: przytrzymaj Alt i przewiń kółkiem nad ikoną drzwi, żeby je uchylać lub przymykać. Gracze mogą to robić z drzwiami, których mogą używać; zmianę zatwierdza klient MG."
     },
     "Error": {
       "Invalid": "Threshold: ściana nie została zapisana. {error}"
@@ -198,6 +199,13 @@
       "slide": "Przesuw",
       "ascend": "Uniesienie",
       "descend": "Opuszczenie"
+    },
+    "Ajar": {
+      "NoBarrier": "Te drzwi nie mają profilu Threshold.",
+      "NotDoor": "Uchylać można tylko drzwi.",
+      "Locked": "Drzwi są zamknięte na klucz.",
+      "NotAllowed": "Nie możesz poruszać tymi drzwiami.",
+      "NoGM": "Żaden MG nie jest połączony, żeby zatwierdzić zmianę."
     }
   }
 }

@@ -43,7 +43,7 @@ export const DEFAULT_BARRIER = Object.freeze({
     double: false,
     direction: 1,
     flip: false,
-    thickness: 0.2,
+    thickness: 0.07,
     /** Repeat the texture once per grid square (true) or stretch one copy along the wall. */
     repeat: true
   },

@@ -290,6 +290,7 @@ export class WallConfigTab {
     return `
       <label class="thr-check"><input type="checkbox" name="${P}.physical"${g.mode === "physical" ? " checked" : ""}> ${esc(t("THRESHOLD.Config.Physical"))}</label>
       <p class="hint">${esc(t("THRESHOLD.Config.PhysicalHint"))}</p>
+      <p class="hint"><i class="fa-solid fa-computer-mouse"></i> ${esc(t("THRESHOLD.Config.WheelHint"))}</p>
       <div class="thr-geometry-body">
         <div class="thr-schematic" data-thr-schematic></div>
         ${field(t("THRESHOLD.Config.OpenAmount"), `<div class="thr-range"><input type="range" min="0" max="100" step="5" name="${P}.openPercent" value="${percent}"><span data-thr-open-label></span></div>`)}
@@ -371,7 +372,7 @@ export class WallConfigTab {
         <div class="thr-field"><label>&nbsp;</label><label class="thr-check"><input type="checkbox" name="${P}.double"${a.double ? " checked" : ""}> ${esc(t("THRESHOLD.Config.DoubleDoor"))}</label></div>
       </div>
       <div class="thr-grid thr-grid-2" data-thr-drawn-only>
-        ${field(t("THRESHOLD.Config.Thickness"), `<input type="number" min="0.05" max="2" step="0.05" name="${P}.thickness" value="${esc(a.thickness ?? 0.2)}">`)}
+        ${field(t("THRESHOLD.Config.Thickness"), `<input type="number" min="0.01" max="2" step="0.01" name="${P}.thickness" value="${esc(a.thickness ?? 0.07)}">`)}
         <div class="thr-field"><label>&nbsp;</label><label class="thr-check"><input type="checkbox" name="${P}.repeat"${a.repeat !== false ? " checked" : ""}> ${esc(t("THRESHOLD.Config.Repeat"))}</label></div>
       </div>
       <p class="hint" data-thr-door-only>${esc(t("THRESHOLD.Config.DoorAppearanceHint"))}</p>`;
@@ -509,7 +510,7 @@ export class WallConfigTab {
     this.setField(panel, "appearance.texture", a.texture ?? "");
     this.setField(panel, "appearance.animation", a.animation ?? "swing");
     this.setField(panel, "appearance.double", a.double);
-    this.setField(panel, "appearance.thickness", a.thickness ?? 0.2);
+    this.setField(panel, "appearance.thickness", a.thickness ?? 0.07);
     this.setField(panel, "appearance.repeat", a.repeat !== false);
     const g = b.geometry ?? {};
     this.setField(panel, "geometry.physical", g.mode === "physical");

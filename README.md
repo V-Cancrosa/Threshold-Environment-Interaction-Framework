@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.8.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.9.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -91,6 +91,7 @@ await thr.barriers.setAjar(wall, 0.5);      // 45°, or half slid back
 ```
 
 - **Movement:** Foundry tests movement along a single line from the token's centre, so a crack would let any token through. While the gap is narrower than **Passable from a gap of** (default 1 grid square), Threshold keeps a movement-only helper wall in the door frame. Helper walls are created, moved and deleted with their door; their sheet says so.
+- **From the map:** hold **Alt** and scroll over a door's icon: scrolling up opens it further, down pushes it to (5% / 4.5° per notch; at 0 the door closes). Players can do this on doors whose profile lets players operate them (not locked, not secret); their client sends a request that the active GM's client checks and applies.
 - **Door controls:** clicking an ajar door's control opens it fully (the leaf goes back to the frame and Foundry's door animation plays); clicking again closes it.
 - **Moving a door by hand:** dragging an endpoint of a physical door makes the new position its closed position (an ajar door is closed first).
 - Turn physical opening off to fall back to the approximation (ajar = limited sight, sound passes).
@@ -115,6 +116,8 @@ await thr.barriers.damage(wall, 10, { source: actor });
 ```
 
 At 0 the barrier switches to **Damaged** (a broken door or window becomes passable); repairing it above 0 returns it to **Closed**. Indestructible barriers refuse damage unless you pass `{ force: true }`.
+
+Barriers drawn by Threshold are thin by default (a few hundredths of a grid square); door textures are flat strips, so Foundry's door leaves stay slim.
 
 A durability bar is drawn on the map under each destructible barrier. The **Durability bars on the map** setting chooses who sees them: nobody, the GM only (default), or GM and players (players only see bars at spots they can see).
 
@@ -170,7 +173,7 @@ Barrier data is stored on the wall at `flags.threshold.barrier`. Every Threshold
 - A dedicated drawing tool and a quick profile switcher on the canvas.
 - Player interaction with non-door barriers (curtains, etc.) via a GM-validated socket request.
 - Segment openings (e.g. a door with a viewing slot as one object).
-- Setting ajar from the canvas (e.g. a modifier-click on the door icon), and for players through a GM-validated request.
+- Player interaction with non-door barriers (e.g. drawing curtains) through the same GM-validated request.
 - Cover, ballistic and system adapters (D&D 5e, Cyberpunk RED, WFRP…).
 
 ## Development

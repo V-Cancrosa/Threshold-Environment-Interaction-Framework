@@ -4,6 +4,8 @@ import { applyFormToChanges } from "../ui/wall-form.js";
 import { DurabilityBars } from "../canvas/durability-bars.js";
 import { BarrierTextures } from "../canvas/barrier-textures.js";
 import { HelperWalls } from "./helper-walls.js";
+import { CanvasAjar } from "../interactions/canvas-ajar.js";
+import { runMigrations } from "./migrations.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -26,6 +28,7 @@ class ThresholdFramework {
     this.syncEnabled = () => game.settings.get(MODULE_ID, "syncNative");
     this.barrierTextures = new BarrierTextures();
     this.helperWalls = new HelperWalls({ adapter: this.foundry });
+    this.canvasAjar = new CanvasAjar({ barriers: this.barriers });
     this.durabilityBars = new DurabilityBars({ mode: () => game.settings.get(MODULE_ID, "durabilityBars") });
     this.wallConfigTab = new WallConfigTab({ profiles: this.profiles, syncEnabled: this.syncEnabled });
   }
@@ -53,6 +56,12 @@ class ThresholdFramework {
       default: "gm",
       onChange: () => this.durabilityBars.refresh()
     });
+    game.settings.register(MODULE_ID, "migrationVersion", {
+      scope: "world",
+      config: false,
+      type: Number,
+      default: 0
+    });
     game.settings.register(MODULE_ID, "debug", {
       name: "THRESHOLD.Settings.Debug.Name",
       hint: "THRESHOLD.Settings.Debug.Hint",
@@ -64,6 +73,7 @@ class ThresholdFramework {
   }
 
   registerHooks() {
+    this.canvasAjar.activate();
     Hooks.on("canvasReady", () => {
       this.durabilityBars.draw();
       this.barrierTextures.refresh();
@@ -120,6 +130,7 @@ class ThresholdFramework {
     await this.profiles.loadDefaults();
     // Let system adapters and worlds add or override profiles before the API is used.
     Hooks.callAll(`${MODULE_ID}.registerProfiles`, this.profiles);
+    await runMigrations(this.barriers);
     if (game.settings.get(MODULE_ID, "debug")) {
       console.info(`${LOG_PREFIX} Debug mode enabled. Profiles: ${this.profiles.list().join(", ")}`);
     }
