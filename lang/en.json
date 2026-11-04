@@ -15,6 +15,15 @@
         "None": "Nobody",
         "GM": "GM only",
         "All": "GM and players"
+      },
+      "Guide": {
+        "Name": "Threshold guide",
+        "Label": "Open the guide",
+        "Hint": "What's new and the user guide."
+      },
+      "ShowWelcome": {
+        "Name": "Show the welcome window after updates",
+        "Hint": "Opens the Threshold guide with the news once after each module update. Applies to you only."
       }
     },
     "Material": {
@@ -206,6 +215,17 @@
       "Locked": "The door is locked.",
       "NotAllowed": "You are not allowed to move this door.",
       "NoGM": "No GM is connected to apply the change."
+    },
+    "Guide": {
+      "Title": "Threshold — guide",
+      "Tagline": "Environment Interaction Framework",
+      "WhatsNew": "What's new in",
+      "Earlier": "Earlier updates you haven't seen",
+      "Manual": "User guide",
+      "PlayerManual": "What you can do",
+      "NothingForPlayers": "Nothing that changes how you play.",
+      "ShowOnUpdate": "Show this window after updates",
+      "Close": "Got it"
     }
   }
 }

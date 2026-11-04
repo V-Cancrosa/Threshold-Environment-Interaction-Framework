@@ -1,0 +1,202 @@
+[
+  {
+    "version": "0.10.0",
+    "date": "2026-11-04",
+    "pl": {
+      "gm": [
+        "Okno powitalne: po każdej aktualizacji pokazuje, co się zmieniło, a pod spodem pełną instrukcję obsługi z ilustracjami.",
+        "Przewodnik otworzysz w każdej chwili przyciskiem w ustawieniach modułu albo makrem <code>game.modules.get(\"threshold\").api.guide()</code>.",
+        "Gracze widzą skróconą wersję: nowości, które ich dotyczą, i rozdział „Dla graczy”."
+      ],
+      "players": [
+        "Po aktualizacji modułu zobaczysz krótkie okno z nowościami i opisem tego, co możesz robić z drzwiami."
+      ]
+    },
+    "en": {
+      "gm": [
+        "Welcome window: after every update it shows what changed, followed by the full illustrated guide.",
+        "Open the guide at any time from the module settings or with the macro <code>game.modules.get(\"threshold\").api.guide()</code>.",
+        "Players see a short version: the news that concerns them and the “For players” chapter."
+      ],
+      "players": [
+        "After a module update you will see a short window with the news and what you can do with doors."
+      ]
+    }
+  },
+  {
+    "version": "0.9.0",
+    "date": "2026-11-04",
+    "pl": {
+      "gm": [
+        "Przeszkody są trzy razy cieńsze; istniejące ściany z grubością z presetu zostały odchudzone automatycznie.",
+        "Alt + kółko myszy nad ikoną drzwi uchyla je i przymyka po 5%."
+      ],
+      "players": [
+        "Przytrzymaj Alt i przewiń kółkiem nad ikoną drzwi, żeby je uchylić albo przymknąć (jeśli MG na to pozwala)."
+      ]
+    },
+    "en": {
+      "gm": [
+        "Barriers are three times thinner; existing walls on a preset thickness were thinned automatically.",
+        "Alt + mouse wheel over a door icon opens or closes it by 5% steps."
+      ],
+      "players": [
+        "Hold Alt and scroll over a door icon to open it a crack or push it to (if the GM allows it)."
+      ]
+    }
+  },
+  {
+    "version": "0.8.0",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Fizyczne uchylanie: skrzydło drzwi naprawdę obraca się na zawiasie albo wsuwa się, a Foundry liczy, co widać przez szczelinę.",
+        "Póki szczelina jest za wąska, ruch blokuje automatyczna ściana pomocnicza."
+      ],
+      "players": [
+        "Uchylone drzwi pokazują tylko to, co naprawdę widać przez szczelinę."
+      ]
+    },
+    "en": {
+      "gm": [
+        "Physical opening: the door leaf really swings on its hinge or slides back, and Foundry works out what can be seen through the gap.",
+        "While the gap is too narrow, an automatic helper wall blocks movement."
+      ],
+      "players": [
+        "A door standing ajar shows only what can really be seen through the gap."
+      ]
+    }
+  },
+  {
+    "version": "0.7.1",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Poprawka: tekstury trafiają do paczki modułu."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "Fix: textures are included in the module package."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.7.0",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "16 tekstur SVG: drzwi, kraty, okna, zasłony, pole siłowe, barykada i inne; każdy stan może mieć własną teksturę.",
+        "Sekcja „Wygląd” w zakładce Threshold."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "16 SVG textures: doors, bars, windows, curtains, force field, barricade and more; each state can have its own texture.",
+        "Appearance section on the Threshold tab."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.6.0",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Wytrzymałość: aktualna i maksymalna, pasek na mapie, makra <code>thr.damage()</code> i <code>thr.repair()</code>.",
+        "Presety mają domyślne zasięgi bliskości; zasięgi pokazują przeliczenie na jednostki sceny."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "Durability: current and maximum, a bar on the map, macros <code>thr.damage()</code> and <code>thr.repair()</code>.",
+        "Presets carry proximity ranges; ranges show their value in scene units."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.5.1",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Zakładka Threshold przewija się poprawnie; nowy układ z macierzą stanów."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "The Threshold tab scrolls properly; new layout with the state matrix."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.5.0",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Edycja zachowania w innych stanach (otwarte, uchylone, zamknięte na klucz, uszkodzone)."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "Edit behaviour in other states (open, ajar, locked, damaged)."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.4.0",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Zakładka Threshold w konfiguracji ściany."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "Threshold tab in the wall configuration sheet."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.2.0-alpha.1",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Profile przeszkód sterują natywnymi ścianami Foundry."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "Barrier profiles drive Foundry's native walls."
+      ],
+      "players": []
+    }
+  },
+  {
+    "version": "0.1.0-alpha.1",
+    "date": "2026-11-01",
+    "pl": {
+      "gm": [
+        "Pierwsza wersja modułu."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "First version of the module."
+      ],
+      "players": []
+    }
+  }
+]

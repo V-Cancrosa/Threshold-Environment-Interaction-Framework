@@ -51,10 +51,10 @@ jobs:
       - name: Build package
         if: steps.meta.outputs.exists == 'false'
         run: |
-          zip -r threshold.zip module.json README.md scripts styles lang profiles assets
+          zip -r threshold.zip module.json README.md scripts styles lang profiles assets docs
           # Every module path referenced from profiles must be in the package.
           missing=0
-          for path in $(grep -oh 'modules/threshold/[^"]*' profiles/*.json | sort -u); do
+          for path in $(grep -oh 'modules/threshold/[^"]*' profiles/*.json | sort -u) modules/threshold/docs/changelog.json modules/threshold/docs/guide.pl.html modules/threshold/docs/guide.en.html; do
             if ! unzip -l threshold.zip "${path#modules/threshold/}" >/dev/null; then
               echo "::error::Missing from package: ${path#modules/threshold/}"; missing=1
             fi

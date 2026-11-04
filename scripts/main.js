@@ -1,5 +1,6 @@
 import { MODULE_ID, LOG_PREFIX } from "./core/constants.js";
 import { Threshold } from "./core/threshold.js";
+import { maybeShowWelcome } from "./ui/guide.js";
 
 Hooks.once("init", () => {
   Threshold.registerSettings();
@@ -15,5 +16,6 @@ Hooks.once("ready", async () => {
   }
   game.modules.get(MODULE_ID).api = Threshold.publicAPI();
   Hooks.callAll(`${MODULE_ID}.ready`, game.modules.get(MODULE_ID).api);
+  maybeShowWelcome();
   console.info(`${LOG_PREFIX} Ready. Public API available at game.modules.get('${MODULE_ID}').api`);
 });

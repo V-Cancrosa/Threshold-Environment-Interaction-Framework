@@ -15,6 +15,15 @@
         "None": "Nikt",
         "GM": "Tylko MG",
         "All": "MG i gracze"
+      },
+      "Guide": {
+        "Name": "Przewodnik Threshold",
+        "Label": "Otwórz przewodnik",
+        "Hint": "Nowości i instrukcja obsługi."
+      },
+      "ShowWelcome": {
+        "Name": "Pokazuj okno powitalne po aktualizacjach",
+        "Hint": "Po każdej aktualizacji modułu raz otwiera przewodnik Threshold z nowościami. Dotyczy tylko Ciebie."
       }
     },
     "Material": {
@@ -206,6 +215,17 @@
       "Locked": "Drzwi są zamknięte na klucz.",
       "NotAllowed": "Nie możesz poruszać tymi drzwiami.",
       "NoGM": "Żaden MG nie jest połączony, żeby zatwierdzić zmianę."
+    },
+    "Guide": {
+      "Title": "Threshold — przewodnik",
+      "Tagline": "Environment Interaction Framework",
+      "WhatsNew": "Co nowego w wersji",
+      "Earlier": "Wcześniejsze aktualizacje, których nie widziałeś",
+      "Manual": "Instrukcja obsługi",
+      "PlayerManual": "Co możesz zrobić",
+      "NothingForPlayers": "Nic, co zmienia sposób gry.",
+      "ShowOnUpdate": "Pokazuj to okno po aktualizacjach",
+      "Close": "Rozumiem"
     }
   }
 }

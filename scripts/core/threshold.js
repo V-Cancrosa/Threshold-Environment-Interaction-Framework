@@ -6,6 +6,7 @@ import { BarrierTextures } from "../canvas/barrier-textures.js";
 import { HelperWalls } from "./helper-walls.js";
 import { CanvasAjar } from "../interactions/canvas-ajar.js";
 import { runMigrations } from "./migrations.js";
+import { getGuideApp, maybeShowWelcome, openGuide } from "../ui/guide.js";
 import { BarrierManager } from "./barrier-manager.js";
 import { GeometryEngine } from "../geometry/geometry-engine.js";
 import { PropertyEngine } from "../properties/property-engine.js";
@@ -55,6 +56,28 @@ class ThresholdFramework {
       },
       default: "gm",
       onChange: () => this.durabilityBars.refresh()
+    });
+    game.settings.registerMenu(MODULE_ID, "guide", {
+      name: "THRESHOLD.Settings.Guide.Name",
+      label: "THRESHOLD.Settings.Guide.Label",
+      hint: "THRESHOLD.Settings.Guide.Hint",
+      icon: "fa-solid fa-book-open",
+      type: getGuideApp(),
+      restricted: false
+    });
+    game.settings.register(MODULE_ID, "showWelcome", {
+      name: "THRESHOLD.Settings.ShowWelcome.Name",
+      hint: "THRESHOLD.Settings.ShowWelcome.Hint",
+      scope: "user",
+      config: true,
+      type: Boolean,
+      default: true
+    });
+    game.settings.register(MODULE_ID, "lastSeenVersion", {
+      scope: "user",
+      config: false,
+      type: String,
+      default: ""
     });
     game.settings.register(MODULE_ID, "migrationVersion", {
       scope: "world",
@@ -145,6 +168,8 @@ class ThresholdFramework {
       properties: this.properties,
       interactions: this.interactions,
       foundry: this.foundry,
+      /** Open the welcome / guide window. */
+      guide: () => openGuide(),
       /** Shortcuts for macros: stand the first selected door ajar (0–1). */
       ajar: (openFraction, wall = this.foundry.getSelectedWalls()[0]) => this.barriers.setAjar(wall, openFraction),
       /** Shortcuts for macros: damage or repair the first selected wall. */
