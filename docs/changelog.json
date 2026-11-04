@@ -1,5 +1,25 @@
 [
   {
+    "version": "0.10.1",
+    "date": "2026-11-04",
+    "pl": {
+      "gm": [
+        "Poprawka: okno powitalne przewija się kółkiem myszy."
+      ],
+      "players": [
+        "Poprawka: okno powitalne przewija się kółkiem myszy."
+      ]
+    },
+    "en": {
+      "gm": [
+        "Fix: the welcome window scrolls with the mouse wheel."
+      ],
+      "players": [
+        "Fix: the welcome window scrolls with the mouse wheel."
+      ]
+    }
+  },
+  {
     "version": "0.10.0",
     "date": "2026-11-04",
     "pl": {

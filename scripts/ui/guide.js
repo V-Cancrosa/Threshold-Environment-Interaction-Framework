@@ -163,9 +163,10 @@ export function getGuideApp() {
     }
 
     _replaceHTML(result, content) {
-      content.innerHTML = result;
-      content.classList.add("thr-guide");
-      finishGuideDOM(content, { isGM: game.user.isGM });
+      // The scrolling happens in an inner element: Foundry's .window-content keeps its
+      // own overflow rules, and a scroll container there fights with them.
+      content.innerHTML = `<div class="thr-guide">${result}</div>`;
+      finishGuideDOM(content.firstElementChild, { isGM: game.user.isGM });
       content.querySelector("[data-thr-close]")?.addEventListener("click", () => this.close());
       content.querySelector("[data-thr-show-welcome]")?.addEventListener("change", event => {
         game.settings.set(MODULE_ID, "showWelcome", event.target.checked);

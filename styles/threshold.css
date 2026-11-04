@@ -281,7 +281,7 @@
 .thr-helper-notice { margin: 0 0 0.5rem; padding: 0.4rem 0.6rem; border-radius: 4px; }
 
 /* ---- Welcome / guide window ---- */
-.threshold-guide .window-content { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.threshold-guide .window-content { padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .thr-guide {
   --thr-accent: var(--color-warm-1, #ee9b3a);
   --thr-red: #c0392b;
@@ -290,9 +290,10 @@
   --thr-line: var(--color-border, rgba(127, 127, 127, 0.35));
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 0;
-  height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-gutter: stable;
 }
 .thr-guide > * { padding-left: 1.25rem; padding-right: 1.25rem; }

@@ -4,7 +4,7 @@
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.10.0 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.10.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
