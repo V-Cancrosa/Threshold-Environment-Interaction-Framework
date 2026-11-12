@@ -1,10 +1,12 @@
 # Threshold — Environment Interaction Framework
 
+![Threshold — Environment Interaction Framework](assets/media/cover.png)
+
 *Advanced spatial barriers, perception and environmental interaction for Foundry VTT.*
 
 > Formerly developed under the internal codename **Universal Barrier System (UBS)**.
 
-**Version:** 0.10.1 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
+**Version:** 0.10.2 · **Target:** Foundry Virtual Tabletop V14 · **Status:** early development
 
 Threshold is a system-agnostic layer over native Foundry walls. A wall gets a **barrier profile**: independent channels for movement, vision, light, sound, cover and ballistics, plus a state, a material and interaction rules. Threshold works out which channels apply in the current state and writes them to the wall's native settings, so Foundry's own movement and vision engine keeps doing the actual work.
 
@@ -191,6 +193,10 @@ npm test
 ```
 
 Tests use Node's built-in test runner and a minimal mock of Foundry; nothing needs installing. Pushing to `main` with a new `version` in `module.json` runs the tests and publishes a GitHub release automatically.
+
+## Package images
+
+`assets/media/cover.png` and `icon.png` are the images shown in module listings. They are rendered from `tools/media/cover.html` and `icon.html` with `node tools/media/build-media.cjs` (needs Playwright and Chromium).
 
 ## License
 

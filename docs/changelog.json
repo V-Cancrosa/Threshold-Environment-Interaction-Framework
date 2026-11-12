@@ -1,5 +1,21 @@
 [
   {
+    "version": "0.10.2",
+    "date": "2026-11-12",
+    "pl": {
+      "gm": [
+        "Moduł ma okładkę, ikonę i pełny opis widoczne na liście modułów (np. na The Forge)."
+      ],
+      "players": []
+    },
+    "en": {
+      "gm": [
+        "The module has a cover image, an icon and a full description in module listings (e.g. on The Forge)."
+      ],
+      "players": []
+    }
+  },
+  {
     "version": "0.10.1",
     "date": "2026-11-04",
     "pl": {

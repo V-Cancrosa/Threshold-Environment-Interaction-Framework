@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#0f0d0c}
+svg{display:block}
+.title{font-family:"Inter Display","Inter",sans-serif;font-weight:900;letter-spacing:.18em;fill:#f4ead9}
+.sub{font-family:"Inter Display","Inter",sans-serif;font-weight:500;letter-spacing:.32em;fill:#ee9b3a}
+.tag{font-family:"Inter",sans-serif;font-weight:500;letter-spacing:.12em;fill:#c9bba6}
+</style></head><body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<defs>
+  <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="2"/></pattern>
+  <radialGradient id="vign" cx="50%" cy="50%" r="75%"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1916"/><stop offset="1" stop-color="#2a221c"/></linearGradient>
+  <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".55"/><stop offset=".55" stop-color="#ee9b3a" stop-opacity=".18"/><stop offset="1" stop-color="#ee9b3a" stop-opacity="0"/></linearGradient>
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd38a" stop-opacity=".5"/><stop offset="1" stop-color="#ffd38a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="winglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#8fd3f0" stop-opacity=".22"/><stop offset="1" stop-color="#8fd3f0" stop-opacity="0"/></radialGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="10"/></filter>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".7"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#floor)"/>
+<rect width="1600" height="900" fill="url(#grid)"/>
+<!-- light through the gap: from the lit room below, up past the free end of the leaf -->
+<polygon points="835,714 860,640 1160,60 520,60" fill="url(#beam)" filter="url(#soft)"/>
+<circle cx="800" cy="790" r="150" fill="url(#glow)"/>
+<ellipse cx="1080" cy="640" rx="170" ry="90" fill="url(#winglow)"/>
+<!-- walls: stone, bars, door frame, window, force field -->
+<g filter="url(#shadow)">
+  <rect x="-10" y="630" width="250" height="20" rx="4" fill="#6f6a62"/>
+  <rect x="980" y="630" width="0" height="0"/>
+  <image href="../../assets/textures/bars.svg" x="240" y="626" width="160" height="28" preserveAspectRatio="none"/>
+  <image href="../../assets/textures/bars.svg" x="400" y="626" width="160" height="28" preserveAspectRatio="none"/>
+  <rect x="560" y="630" width="180" height="20" rx="4" fill="#6f6a62"/>
+  <rect x="860" y="630" width="140" height="20" rx="4" fill="#6f6a62"/>
+  <image href="../../assets/textures/window.svg" x="1000" y="628" width="160" height="24" preserveAspectRatio="none"/>
+  <rect x="1160" y="630" width="120" height="20" rx="4" fill="#6f6a62"/>
+  <image href="../../assets/textures/force-field.svg" x="1280" y="622" width="330" height="36" preserveAspectRatio="none"/>
+  <!-- the door leaf, swung 38° on its hinge -->
+  <g transform="translate(740 640) rotate(38)"><image href="../../assets/textures/wood-door.svg" x="0" y="-7" width="120" height="14" preserveAspectRatio="none"/></g>
+  <circle cx="740" cy="640" r="7" fill="#d9c7a3" stroke="#2a1c10" stroke-width="3"/>
+</g>
+<!-- tokens -->
+<g filter="url(#shadow)">
+  <circle cx="800" cy="790" r="38" fill="#2e6b4b" stroke="#f4ead9" stroke-width="5"/>
+  <circle cx="800" cy="790" r="16" fill="#f4ead9" fill-opacity=".9"/>
+  <circle cx="905" cy="535" r="28" fill="#7a2a24" stroke="#f4ead9" stroke-width="4" opacity=".95"/>
+</g>
+<rect width="1600" height="900" fill="url(#vign)"/>
+<!-- title -->
+<text x="800" y="292" text-anchor="middle" class="title" font-size="112">THRESHOLD</text>
+<text x="800" y="352" text-anchor="middle" class="sub" font-size="25">ENVIRONMENT INTERACTION FRAMEWORK</text>
+<text x="800" y="404" text-anchor="middle" class="tag" font-size="21">DOORS · WINDOWS · BARRIERS · PERCEPTION</text>
+<text x="1570" y="878" text-anchor="end" class="tag" font-size="20" opacity=".6">for Foundry VTT</text>
+</svg></body></html>

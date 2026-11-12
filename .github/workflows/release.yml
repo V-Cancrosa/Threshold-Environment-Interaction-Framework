@@ -44,14 +44,16 @@ jobs:
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           jq --arg m "$REPO_URL/releases/latest/download/module.json" \
              --arg d "$REPO_URL/releases/download/${{ steps.meta.outputs.tag }}/threshold.zip" \
-             '.manifest = $m | .download = $d' module.json > module.tmp
+             --arg tag "${{ steps.meta.outputs.tag }}" \
+             '.manifest = $m | .download = $d
+              | .media = ((.media // []) | map(.url |= sub("/main/"; "/" + $tag + "/")))' module.json > module.tmp
           mv module.tmp module.json
           cat module.json
 
       - name: Build package
         if: steps.meta.outputs.exists == 'false'
         run: |
-          zip -r threshold.zip module.json README.md scripts styles lang profiles assets docs
+          zip -r threshold.zip module.json README.md scripts styles lang profiles assets docs -x 'assets/media/*'
           # Every module path referenced from profiles must be in the package.
           missing=0
           for path in $(grep -oh 'modules/threshold/[^"]*' profiles/*.json | sort -u) modules/threshold/docs/changelog.json modules/threshold/docs/guide.pl.html modules/threshold/docs/guide.en.html; do
